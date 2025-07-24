@@ -1,3 +1,5 @@
+import { GlobalStateProvider } from "@/providers/global-state-provider";
+import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
 export default function RootProvider({
@@ -12,7 +14,9 @@ export default function RootProvider({
       enableSystem
       disableTransitionOnChange
     >
-      {children}
+      <GlobalStateProvider>
+        <ReactQueryProvider>{children}</ReactQueryProvider>
+      </GlobalStateProvider>
     </ThemeProvider>
   );
 }
