@@ -13,6 +13,9 @@ import {
 } from "../ui/sidebar";
 import { BookOpen, Coffee, Settings2, SquareTerminal } from "lucide-react";
 import { NavMain } from "./nav-main";
+import { NavAdmin } from "./nav-admin";
+import { useAtomValue } from "jotai";
+import { profileAtom } from "@/stores/auth-store";
 
 const myMenu = {
   user: {
@@ -28,15 +31,15 @@ const myMenu = {
       isActive: true,
       items: [
         {
-          title: "Users",
-          url: "/dashboard/users",
+          title: "User",
+          url: "/admin/user",
         },
         {
-          title: "Clients",
+          title: "Client",
           url: "/dashboard/clients",
         },
         {
-          title: "Logs",
+          title: "Log",
           url: "/dashboard/logs",
         },
       ],
@@ -91,6 +94,8 @@ const myMenu = {
 };
 
 export function AppSidebar() {
+  const profile = useAtomValue(profileAtom);
+
   return (
     <Sidebar variant="inset">
       <SidebarHeader>
@@ -120,7 +125,9 @@ export function AppSidebar() {
         <NavMain items={myMenu.navMain} />
         <SidebarGroup />
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <NavAdmin user={profile} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

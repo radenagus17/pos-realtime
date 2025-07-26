@@ -23,7 +23,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const login = () => {
+const Login = () => {
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchemaForm),
     defaultValues: INITIAL_LOGIN_FORM,
@@ -65,7 +65,7 @@ const login = () => {
         });
       });
     }
-  }, [loginState]);
+  }, [loginState, push, loginForm]);
 
   return (
     <Card>
@@ -105,4 +105,4 @@ const login = () => {
   );
 };
 
-export default login;
+export default Login;

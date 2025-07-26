@@ -1,3 +1,10 @@
+export const INITIAL_PROFILE = {
+  id: "",
+  name: "",
+  avatar_url: "",
+  role: "",
+};
+
 export const INITIAL_LOGIN_FORM = {
   email: "",
   password: "",
