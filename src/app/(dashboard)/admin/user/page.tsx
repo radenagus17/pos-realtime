@@ -1,3 +1,5 @@
+import UsersManagement from "./_components/users";
+
 export default function UserPage() {
-  return <h1>hallo user page</h1>;
+  return <UsersManagement />;
 }
