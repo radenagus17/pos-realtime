@@ -99,7 +99,7 @@ export function useDataTable<TData>({
 
   const [sort, setSort] = useQueryState(
     "sort",
-    parseAsString.withOptions(queryStateOptions).withDefault(`created_at.desc`)
+    parseAsString.withOptions(queryStateOptions).withDefault(`created_at.asc`)
   );
 
   const [column, order] = sort?.split(".") ?? [];

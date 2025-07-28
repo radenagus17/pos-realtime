@@ -106,7 +106,7 @@ export function AppSidebar() {
               className="hover:font-normal hover:bg-transparent"
               asChild
             >
-              <Link href="/dashboard">
+              <Link href="/admin">
                 <div className="flex bg-teal-500 aspect-square size-9 items-center text-white justify-center rounded-md">
                   <Coffee />
                 </div>

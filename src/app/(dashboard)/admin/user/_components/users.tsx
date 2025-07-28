@@ -9,7 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "../lib/data";
 import { toast } from "sonner";
@@ -18,19 +17,31 @@ import { DataTableFilterField } from "@/types/data-table";
 import { useDataTable } from "@/hooks/use-data-table";
 import DataTable from "@/components/ui/data-table";
 import DataTableAction from "@/components/ui/data-table-action";
+import { PostgrestError } from "@supabase/supabase-js";
+import { GetQueryParams } from "@/lib/utils";
 
-const UsersManagement = () => {
-  const { data: users, isLoading } = useQuery<Profile[]>({
-    queryKey: ["users"],
+interface UsersManagementProps {
+  query: GetQueryParams;
+}
+
+type ResultTypes = {
+  data: Profile[] | null;
+  error: PostgrestError | null;
+  count: number | null;
+};
+
+const UsersManagement = ({ query }: UsersManagementProps) => {
+  const { data: users, isLoading } = useQuery<ResultTypes>({
+    queryKey: ["users", query],
     queryFn: async () => {
-      const { data, error } = await getUsers();
+      const result = await getUsers(query);
 
-      if (error)
+      if (result.error)
         toast.error("Get User data failed", {
-          description: error.message,
+          description: result.error.message,
         });
 
-      return data as Profile[];
+      return result;
     },
   });
 
@@ -43,9 +54,9 @@ const UsersManagement = () => {
   ];
 
   const { table } = useDataTable({
-    data: users ?? [],
+    data: users?.data ?? [],
     columns,
-    pageCount: users?.length ?? -1,
+    pageCount: users?.count ? Math.ceil(users.count / query.size) : 0,
     filterFields,
     getRowId: (originalRow, index) => `${originalRow.id}-${index}`,
     shallow: false,

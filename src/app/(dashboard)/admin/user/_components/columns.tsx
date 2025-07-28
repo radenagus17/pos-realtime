@@ -133,7 +133,7 @@ const columns: ColumnDef<Profile>[] = [
       const role = row.original.role;
       return (
         <div className="flex flex-wrap gap-1">
-          <Badge variant={"outline"}>{role}</Badge>
+          <Badge variant={"outline"}>{role || "-"}</Badge>
         </div>
       );
     },
