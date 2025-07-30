@@ -31,7 +31,7 @@ export function NavAdmin({ user }: { user: Partial<Profile> }) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent hover:font-normal data-[state=open]:text-sidebar-accent-foreground cursor-pointer hover:bg-accent"
+              className="data-[state=open]:ring-teal-500 data-[state=open]:ring-1 bg-sidebar-accent shadow-sm hover:font-normal data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar_url} alt={user.name} />

@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePagination } from "@/hooks/use-pagination";
+import { cn } from "@/lib/utils";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -62,7 +63,7 @@ DataTablePaginationProps<TData>) {
               <Button
                 size="icon"
                 variant="outline"
-                className="disabled:pointer-events-none disabled:opacity-50"
+                className="disabled:pointer-events-none cursor-pointer disabled:opacity-50"
                 onClick={() => table.firstPage()}
                 disabled={!table.getCanPreviousPage()}
                 aria-label="Go to first page"
@@ -76,7 +77,7 @@ DataTablePaginationProps<TData>) {
               <Button
                 size="icon"
                 variant="outline"
-                className="disabled:pointer-events-none disabled:opacity-50"
+                className="disabled:pointer-events-none cursor-pointer disabled:opacity-50"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
                 aria-label="Go to previous page"
@@ -100,9 +101,13 @@ DataTablePaginationProps<TData>) {
                 <PaginationItem key={page}>
                   <Button
                     size="icon"
+                    disabled={isActive}
                     variant={`${isActive ? "outline" : "ghost"}`}
                     onClick={() => table.setPageIndex(page - 1)}
                     aria-current={isActive ? "page" : undefined}
+                    className={cn({
+                      "cursor-pointer": !isActive,
+                    })}
                   >
                     {page}
                   </Button>
@@ -122,7 +127,7 @@ DataTablePaginationProps<TData>) {
               <Button
                 size="icon"
                 variant="outline"
-                className="disabled:pointer-events-none disabled:opacity-50"
+                className="disabled:pointer-events-none cursor-pointer disabled:opacity-50"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
                 aria-label="Go to next page"
@@ -136,7 +141,7 @@ DataTablePaginationProps<TData>) {
               <Button
                 size="icon"
                 variant="outline"
-                className="disabled:pointer-events-none disabled:opacity-50"
+                className="disabled:pointer-events-none cursor-pointer disabled:opacity-50"
                 onClick={() => table.lastPage()}
                 disabled={!table.getCanNextPage()}
                 aria-label="Go to last page"
@@ -157,7 +162,7 @@ DataTablePaginationProps<TData>) {
         >
           <SelectTrigger
             id="results-per-page"
-            className="w-fit whitespace-nowrap"
+            className="w-fit whitespace-nowrap cursor-pointer"
           >
             <SelectValue placeholder="Select number of results" />
           </SelectTrigger>

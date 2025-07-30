@@ -183,7 +183,7 @@ const columns: ColumnDef<Profile>[] = [
   },
   {
     id: "actions",
-    header: () => <span className="sr-only">Actions</span>,
+    header: () => <div className="text-right pr-3">Actions</div>,
     cell: ({ row }) => <RowActions row={row} />,
     size: 60,
     enableHiding: false,
