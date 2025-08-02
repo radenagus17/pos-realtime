@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { ChangeEvent } from "react";
 import { twMerge } from "tailwind-merge";
 import z from "zod";
 
@@ -13,3 +14,9 @@ export const queryParamsSchema = z.object({
 });
 
 export type GetQueryParams = z.infer<typeof queryParamsSchema>;
+
+export function getImageData(event: ChangeEvent<HTMLInputElement>) {
+  const file = event.target.files![0];
+  const displayUrl = URL.createObjectURL(file);
+  return { file, displayUrl };
+}
