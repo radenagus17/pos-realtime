@@ -2,13 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import columns from "./columns";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "../lib/data";
 import { toast } from "sonner";
@@ -19,6 +13,8 @@ import DataTable from "@/components/ui/data-table";
 import DataTableAction from "@/components/ui/data-table-action";
 import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
+import DialogCreateUser from "./dialog-create-user";
+import { useCallback, useState } from "react";
 
 interface UsersManagementProps {
   query: GetQueryParams;
@@ -31,7 +27,13 @@ type ResultTypes = {
 };
 
 const UsersManagement = ({ query }: UsersManagementProps) => {
-  const { data: users, isLoading } = useQuery<ResultTypes>({
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+  const {
+    data: users,
+    isLoading,
+    refetch,
+  } = useQuery<ResultTypes>({
     queryKey: ["users", query],
     queryFn: async () => {
       const result = await getUsers(query);
@@ -44,6 +46,8 @@ const UsersManagement = ({ query }: UsersManagementProps) => {
       return result;
     },
   });
+
+  const closeDialog = useCallback(() => setOpenDialog(false), []);
 
   const filterFields: DataTableFilterField<Profile>[] = [
     {
@@ -72,20 +76,11 @@ const UsersManagement = ({ query }: UsersManagementProps) => {
             table={table}
             filterFields={filterFields}
             renderNewAction={() => (
-              <Dialog>
+              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                 <DialogTrigger asChild>
                   <Button>Create</Button>
                 </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create a user</DialogTitle>
-                  </DialogHeader>
-                  <div>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ad
-                    consequatur iusto ratione? Quidem repellat aperiam
-                    asperiores perspiciatis neque facere eligendi.
-                  </div>
-                </DialogContent>
+                <DialogCreateUser refetch={refetch} closeDialog={closeDialog} />
               </Dialog>
             )}
           />

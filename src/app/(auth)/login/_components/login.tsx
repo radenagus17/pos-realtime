@@ -79,7 +79,7 @@ const Login = () => {
             <FormInput
               form={form}
               name="email"
-              label="Name"
+              label="Email"
               placeholder="Input your email"
             />
             <FormInput

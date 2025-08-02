@@ -1,0 +1,58 @@
+"use server";
+
+import { INITIAL_STATE_CREATE_USER_FORM } from "@/constants/user-constant";
+import { createClient } from "@/lib/supabase/server";
+import { AuthFormState } from "@/types/auth";
+import { createUserSchemaForm } from "@/validations/user-validation";
+import z from "zod";
+
+export async function createUserAction(
+  prevState: AuthFormState,
+  formData: FormData | null
+): Promise<AuthFormState> {
+  if (!formData) {
+    return INITIAL_STATE_CREATE_USER_FORM;
+  }
+
+  const validatedFields = createUserSchemaForm.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+    name: formData.get("name"),
+    role: formData.get("role"),
+    // avatar_url: formData.get('avatar_url'),
+  });
+
+  if (!validatedFields.success) {
+    const { fieldErrors } = z.flattenError(validatedFields.error);
+    return { status: "error", errors: { ...fieldErrors, _form: [] } };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signUp({
+    email: validatedFields.data.email,
+    password: validatedFields.data.password,
+    options: {
+      data: {
+        name: validatedFields.data.name,
+        role: validatedFields.data.role,
+        // avatar_url: validatedFields.data.avatar_url,
+      },
+    },
+  });
+
+  if (error) {
+    return {
+      status: "error",
+      errors: {
+        ...prevState.errors,
+        _form: [error.message],
+      },
+    };
+  }
+
+  return {
+    status: "success",
+    errors: undefined,
+  };
+}
