@@ -16,8 +16,12 @@ import { Profile } from "@/types/auth";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSetAtom } from "jotai";
+import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
 
 function RowActions({ row }: { row: Row<Profile> }) {
+  const openDialogForm = useSetAtom(dialogFormUserAtom);
+  const setSelectedUser = useSetAtom(selectedUserAtom);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,10 +39,10 @@ function RowActions({ row }: { row: Row<Profile> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem
-          // onClick={() => {
-          //   setOpenDialog(true);
-          //   setDetailUser(row.original);
-          // }}
+            onClick={() => {
+              openDialogForm(true);
+              setSelectedUser(row.original);
+            }}
           >
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>

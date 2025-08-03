@@ -4,7 +4,10 @@ import { uploadFile } from "@/actions/storage-action";
 import { INITIAL_STATE_CREATE_USER_FORM } from "@/constants/user-constant";
 import { createClient } from "@/lib/supabase/server";
 import { AuthFormState } from "@/types/auth";
-import { createUserSchemaForm } from "@/validations/user-validation";
+import {
+  createUserSchemaForm,
+  updateUserSchemaForm,
+} from "@/validations/user-validation";
 import z from "zod";
 
 export async function createUserAction(
@@ -80,5 +83,73 @@ export async function createUserAction(
   return {
     status: "success",
     errors: undefined,
+  };
+}
+
+export async function updateUserAction(
+  prevState: AuthFormState,
+  formData: FormData
+) {
+  let validatedFields = updateUserSchemaForm.safeParse({
+    name: formData.get("name"),
+    role: formData.get("role"),
+    avatar_url: formData.get("avatar_url"),
+  });
+
+  if (!validatedFields.success) {
+    const { fieldErrors } = z.flattenError(validatedFields.error);
+    return { status: "error", errors: { ...fieldErrors, _form: [] } };
+  }
+
+  if (validatedFields.data.avatar_url instanceof File) {
+    const oldAvatarUrl = formData.get("old_avatar_url") as string;
+    const { errors, data } = await uploadFile(
+      "images",
+      "users",
+      validatedFields.data.avatar_url,
+      oldAvatarUrl.split("/images/")[1]
+    );
+    if (errors) {
+      return {
+        status: "error",
+        errors: {
+          ...prevState.errors,
+          _form: [...errors._form],
+        },
+      };
+    }
+
+    validatedFields = {
+      ...validatedFields,
+      data: {
+        ...validatedFields.data,
+        avatar_url: data.url,
+      },
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      name: validatedFields.data.name,
+      role: validatedFields.data.role,
+      avatar_url: validatedFields.data.avatar_url,
+    })
+    .eq("id", formData.get("id"));
+
+  if (error) {
+    return {
+      status: "error",
+      errors: {
+        ...prevState.errors,
+        _form: [error.message],
+      },
+    };
+  }
+
+  return {
+    status: "success",
   };
 }
