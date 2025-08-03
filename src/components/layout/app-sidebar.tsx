@@ -35,8 +35,8 @@ const myMenu = {
           url: "/admin/user",
         },
         {
-          title: "Client",
-          url: "/dashboard/clients",
+          title: "Menu",
+          url: "/admin/menu",
         },
         {
           title: "Log",

@@ -3,4 +3,6 @@ import { atom } from "jotai";
 
 export const dialogFormUserAtom = atom<boolean>(false);
 
-export const selectedUserAtom = atom<Profile | null>(null);
+export const selectedUserAtom = atom<
+  (Profile & { type: "update" | "delete" }) | null
+>(null);

@@ -12,16 +12,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { CalendarCheck, EllipsisIcon } from "lucide-react";
-import { Profile } from "@/types/auth";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSetAtom } from "jotai";
 import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
+import { MenuTypes } from "@/types/menu";
+import { convertIDR } from "@/lib/utils";
 
-function RowActions({ row }: { row: Row<Profile> }) {
-  const openDialogForm = useSetAtom(dialogFormUserAtom);
-  const setSelectedUser = useSetAtom(selectedUserAtom);
+function RowActions({ row }: { row: Row<MenuTypes> }) {
+  // const openDialogForm = useSetAtom(dialogFormUserAtom);
+  // const setSelectedUser = useSetAtom(selectedUserAtom);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,10 +40,10 @@ function RowActions({ row }: { row: Row<Profile> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => {
-              setSelectedUser({ ...row.original, type: "update" });
-              openDialogForm(true);
-            }}
+          // onClick={() => {
+          //   setSelectedUser({ ...row.original, type: "update" });
+          //   openDialogForm(true);
+          // }}
           >
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
@@ -54,10 +55,10 @@ function RowActions({ row }: { row: Row<Profile> }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
-            setSelectedUser({ ...row.original, type: "delete" });
-            openDialogForm(true);
-          }}
+          // onClick={() => {
+          //   setSelectedUser({ ...row.original, type: "delete" });
+          //   openDialogForm(true);
+          // }}
           className="text-destructive focus:text-destructive"
         >
           <span>Delete</span>
@@ -69,14 +70,18 @@ function RowActions({ row }: { row: Row<Profile> }) {
 }
 
 // Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<Profile> = (row, columnId, filterValue) => {
+const multiColumnFilterFn: FilterFn<MenuTypes> = (
+  row,
+  columnId,
+  filterValue
+) => {
   const searchableRowContent =
-    `${row.original.name} ${row.original.role}`.toLowerCase();
+    `${row.original.name} ${row.original.category}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
 };
 
-const columns: ColumnDef<Profile>[] = [
+const columns: ColumnDef<MenuTypes>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -107,41 +112,81 @@ const columns: ColumnDef<Profile>[] = [
     ),
     accessorKey: "name",
     cell: ({ row }) => {
-      const avatar = row.original.avatar_url;
+      const image = row.original.image_url;
       const name = row.original.name;
+      const category = row.original.category;
 
       return (
-        <div className="flex items-center gap-4 py-2">
-          <Avatar>
-            <AvatarImage src={avatar} />
+        <div className="flex items-center gap-3 py-2">
+          <Avatar className="rounded-md size-10">
+            <AvatarImage src={image} />
             <AvatarFallback className="uppercase">
               {name?.substring(0, 1) || "U"}
             </AvatarFallback>
           </Avatar>
-          <h3 className="text-sm font-medium text-tenka-typography-error capitalize">
-            {name || "Unknown"}
-          </h3>
+          <div>
+            <h3 className="text-sm font-semibold capitalize">
+              {name || "Unknown"}
+            </h3>
+            <p className="text-muted-foreground text-sm">#{category}</p>
+          </div>
         </div>
       );
     },
-    size: 150,
+    size: 110,
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Role" />
+      <DataTableColumnHeader column={column} title="Description" />
     ),
-    accessorKey: "role",
+    accessorKey: "description",
     cell: ({ row }) => {
-      const role = row.original.role;
+      const description = row.original.description;
+      return <p className="text-wrap line-clamp-2 max-w-64">{description}</p>;
+    },
+    size: 150,
+  },
+  {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Price" />
+    ),
+    accessorKey: "price",
+    cell: ({ row }) => {
+      const base = row.original.price;
+      const discount = row.original.discount;
       return (
-        <div className="flex flex-wrap gap-1">
-          <Badge variant={"outline"}>{role || "-"}</Badge>
-        </div>
+        <ul>
+          <li className="text-wrap">Base: {base ? convertIDR(base) : "-"}</li>
+          <li className="text-wrap">
+            Discount: {discount ? discount + "%" : "-"}
+          </li>
+          <li className="text-wrap">
+            After Discount:{" "}
+            {discount && base
+              ? convertIDR(base - (base * discount) / 100)
+              : "-"}
+          </li>
+        </ul>
       );
     },
-    size: 90,
+    size: 115,
+  },
+  {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Available" />
+    ),
+    accessorKey: "is_available",
+    cell: ({ row }) => {
+      const available = row.original.is_available;
+      return (
+        <Badge variant={available ? "success" : "outline"}>
+          {available ? "Available" : "Not Available"}
+        </Badge>
+      );
+    },
+    size: 85,
   },
   {
     header: ({ column }) => (
@@ -162,28 +207,7 @@ const columns: ColumnDef<Profile>[] = [
         </span>
       );
     },
-    size: 180,
-  },
-  {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Updated At" />
-    ),
-    accessorKey: "updated_at",
-    cell: ({ row }) => {
-      const updated = row.original.updated_at
-        ? format(
-            new Date(row.getValue("updated_at")),
-            "EEEE, dd MMM yyyy || HH:mm:ss"
-          )
-        : "N/A";
-      return (
-        <span className="inline-flex items-center gap-1.5">
-          <CalendarCheck size={16} />
-          {updated}
-        </span>
-      );
-    },
-    size: 180,
+    size: 150,
   },
   {
     id: "actions",

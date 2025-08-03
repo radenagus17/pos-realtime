@@ -15,7 +15,7 @@ import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
 
 export default function DialogUpdateUser({ refetch }: { refetch: () => void }) {
   const [currentData, setCurrentData] = useAtom(selectedUserAtom);
-  const closeDialog = useSetAtom(dialogFormUserAtom);
+  const openDialog = useSetAtom(dialogFormUserAtom);
 
   const form = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchemaForm),
@@ -60,11 +60,11 @@ export default function DialogUpdateUser({ refetch }: { refetch: () => void }) {
     if (updateUserState?.status === "success") {
       toast.success("Update User Success");
       form.reset();
-      closeDialog(false);
+      openDialog(false);
       setCurrentData(null);
       refetch();
     }
-  }, [updateUserState, refetch, form, closeDialog, setCurrentData]);
+  }, [updateUserState, refetch, form, openDialog, setCurrentData]);
 
   useEffect(() => {
     if (currentData) {
