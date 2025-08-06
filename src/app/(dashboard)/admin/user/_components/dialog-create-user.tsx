@@ -59,7 +59,7 @@ const DialogCreateUser: FC<DialogCreateUserProps> = ({
         description: createUserState.errors?._form?.[0],
       });
     } else if (createUserState?.status === "success") {
-      toast.success("Succeffully", {
+      toast.success("Successfully", {
         description: "Create user success",
       });
       form.reset();

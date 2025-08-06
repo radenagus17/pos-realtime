@@ -15,9 +15,10 @@ import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
 import DialogCreateUser from "./dialog-create-user";
 import { useAtom, useAtomValue } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
+import { selectedUserAtom } from "@/stores/user-store";
 import DialogUpdateUser from "./dialog-update-user";
 import DialogDeleteUser from "./dialog-delete-user";
+import { dialogFormAtom } from "@/stores/general-store";
 
 interface UsersManagementProps {
   query: GetQueryParams;
@@ -31,7 +32,7 @@ type ResultTypes = {
 
 const UsersManagement = ({ query }: UsersManagementProps) => {
   const selectedUser = useAtomValue(selectedUserAtom);
-  const [openDialog, setOpenDialog] = useAtom(dialogFormUserAtom);
+  const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
 
   const {
     data: users,

@@ -4,11 +4,12 @@ import { deleteUser } from "../lib/actions";
 import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
 import { toast } from "sonner";
 import { useAtom, useSetAtom } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
+import { selectedUserAtom } from "@/stores/user-store";
+import { dialogFormAtom } from "@/stores/general-store";
 
 export default function DialogDeleteUser({ refetch }: { refetch: () => void }) {
   const [currentData, setCurrentData] = useAtom(selectedUserAtom);
-  const openDialog = useSetAtom(dialogFormUserAtom);
+  const openDialog = useSetAtom(dialogFormAtom);
 
   const [deleteUserState, deleteUserAction, isPendingDeleteUser] =
     useActionState(deleteUser, INITIAL_STATE_ACTION);

@@ -79,6 +79,7 @@ export default function FormInput<T extends FieldValues>({
                   {...field}
                   placeholder={placeholder}
                   autoComplete="off"
+                  type={type}
                 />
               </FormControl>
               <FormMessage className="text-xs" />

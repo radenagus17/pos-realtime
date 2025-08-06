@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import columns from "./columns";
-// import { Dialog } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getMenus } from "../lib/data";
 import { toast } from "sonner";
@@ -12,12 +11,11 @@ import DataTable from "@/components/ui/data-table";
 import DataTableAction from "@/components/ui/data-table-action";
 import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
-// import DialogCreateUser from "./dialog-create-user";
-import { useAtom, useAtomValue } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
-// import DialogUpdateUser from "./dialog-update-user";
-// import DialogDeleteUser from "./dialog-delete-user";
+import { useAtom } from "jotai";
 import { MenuTypes } from "@/types/menu";
+import { dialogFormAtom } from "@/stores/general-store";
+import { Dialog } from "@/components/ui/dialog";
+import DialogCreateMenu from "./dialog-create-menu";
 
 interface MenuManagementProps {
   query: GetQueryParams;
@@ -30,8 +28,8 @@ type ResultTypes = {
 };
 
 const MenuManagement = ({ query }: MenuManagementProps) => {
-  const selectedUser = useAtomValue(selectedUserAtom);
-  const [openDialog, setOpenDialog] = useAtom(dialogFormUserAtom);
+  // const selectedUser = useAtomValue(selectedUserAtom);
+  const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
 
   const {
     data: menus,
@@ -81,8 +79,8 @@ const MenuManagement = ({ query }: MenuManagementProps) => {
               <Button onClick={() => setOpenDialog(true)}>Create</Button>
             )}
           />
-          {/* <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            {selectedUser && selectedUser.type === "update" ? (
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            {/* {selectedUser && selectedUser.type === "update" ? (
               <DialogUpdateUser refetch={refetch} />
             ) : selectedUser && selectedUser.type === "delete" ? (
               <DialogDeleteUser refetch={refetch} />
@@ -91,8 +89,12 @@ const MenuManagement = ({ query }: MenuManagementProps) => {
                 refetch={refetch}
                 closeDialog={() => setOpenDialog(false)}
               />
-            )}
-          </Dialog> */}
+            )} */}
+            <DialogCreateMenu
+              refetch={refetch}
+              closeDialog={() => setOpenDialog(false)}
+            />
+          </Dialog>
         </DataTable>
       </section>
     </main>

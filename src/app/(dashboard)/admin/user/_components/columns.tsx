@@ -17,10 +17,11 @@ import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSetAtom } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
+import { selectedUserAtom } from "@/stores/user-store";
+import { dialogFormAtom } from "@/stores/general-store";
 
 function RowActions({ row }: { row: Row<Profile> }) {
-  const openDialogForm = useSetAtom(dialogFormUserAtom);
+  const openDialogForm = useSetAtom(dialogFormAtom);
   const setSelectedUser = useSetAtom(selectedUserAtom);
   return (
     <DropdownMenu>

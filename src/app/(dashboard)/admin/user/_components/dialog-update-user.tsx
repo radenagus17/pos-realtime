@@ -11,11 +11,12 @@ import { toast } from "sonner";
 import FormUser from "./form-user";
 import { updateUserAction } from "../lib/actions";
 import { useAtom, useSetAtom } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
+import { selectedUserAtom } from "@/stores/user-store";
+import { dialogFormAtom } from "@/stores/general-store";
 
 export default function DialogUpdateUser({ refetch }: { refetch: () => void }) {
   const [currentData, setCurrentData] = useAtom(selectedUserAtom);
-  const openDialog = useSetAtom(dialogFormUserAtom);
+  const openDialog = useSetAtom(dialogFormAtom);
 
   const form = useForm<UpdateUserForm>({
     resolver: zodResolver(updateUserSchemaForm),

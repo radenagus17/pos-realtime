@@ -16,7 +16,6 @@ import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSetAtom } from "jotai";
-import { dialogFormUserAtom, selectedUserAtom } from "@/stores/user-store";
 import { MenuTypes } from "@/types/menu";
 import { convertIDR } from "@/lib/utils";
 
