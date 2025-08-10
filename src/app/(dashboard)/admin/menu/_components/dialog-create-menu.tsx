@@ -61,7 +61,8 @@ const DialogCreateMenu: FC<DialogCreateMenuProps> = ({
       closeDialog();
       refetch();
     }
-  }, [createMenuState, form, refetch, closeDialog]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createMenuState?.status]);
 
   return (
     <FormMenu

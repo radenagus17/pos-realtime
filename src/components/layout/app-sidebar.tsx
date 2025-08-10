@@ -25,7 +25,7 @@ const myMenu = {
   },
   navMain: [
     {
-      title: "Playground",
+      title: "Admin",
       url: "#",
       icon: SquareTerminal,
       isActive: true,
@@ -45,13 +45,13 @@ const myMenu = {
       ],
     },
     {
-      title: "Documentation",
+      title: "Transactions",
       url: "#",
       icon: BookOpen,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Order",
+          url: "/order",
         },
         {
           title: "Get Started",

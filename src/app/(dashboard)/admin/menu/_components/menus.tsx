@@ -79,16 +79,17 @@ const MenuManagement = ({ query }: MenuManagementProps) => {
             table={table}
             filterFields={filterFields}
             renderNewAction={() => (
-              <Button onClick={() => setOpenDialog(true)}>Create</Button>
+              <Button
+                onClick={() => {
+                  setSelectedMenu(null);
+                  return setOpenDialog(true);
+                }}
+              >
+                Create
+              </Button>
             )}
           />
-          <Dialog
-            open={openDialog}
-            onOpenChange={(e) => {
-              setSelectedMenu(null);
-              return setOpenDialog(e);
-            }}
-          >
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             {selectedMenu && selectedMenu.type === "update" ? (
               <DialogUpdateMenu refetch={refetch} />
             ) : selectedMenu && selectedMenu.type === "delete" ? (

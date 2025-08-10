@@ -1,9 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import columns from "./columns";
 import { useQuery } from "@tanstack/react-query";
-import { getTables } from "../lib/data";
 import { toast } from "sonner";
 import { DataTableFilterField } from "@/types/data-table";
 import { useDataTable } from "@/hooks/use-data-table";
@@ -14,37 +12,36 @@ import { GetQueryParams } from "@/lib/utils";
 import { useAtom } from "jotai";
 import { dialogFormAtom } from "@/stores/general-store";
 import { Dialog } from "@/components/ui/dialog";
-import { TableTypes } from "@/types/table";
-import DialogCreateTable from "./dialog-create-table";
-import { selectedTableAtom } from "@/stores/table-store";
-import DialogUpdateTable from "./dialog-update-table";
-import DialogDeleteTable from "./dialog-delete-table";
+import { OrderTypes } from "@/types/order";
+import { getOrders } from "../lib/data";
+import columns from "./columns";
+import DialogCreateOrder from "./dialog-create-order";
 
-interface TableManagementProps {
+interface OrderManagementProps {
   query: GetQueryParams;
 }
 
 type ResultTypes = {
-  data: TableTypes[] | null;
+  data: OrderTypes[] | null;
   error: PostgrestError | null;
   count: number | null;
 };
 
-const TableManagement = ({ query }: TableManagementProps) => {
-  const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
+const OrderManagement = ({ query }: OrderManagementProps) => {
+  // const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
 
   const {
-    data: tables,
+    data: orders,
     isLoading,
     refetch,
   } = useQuery<ResultTypes>({
-    queryKey: ["tables", query],
+    queryKey: ["orders", query],
     queryFn: async () => {
-      const result = await getTables(query);
+      const result = await getOrders(query);
 
       if (result.error)
-        toast.error("Get Table data failed", {
+        toast.error("Get Order data failed", {
           description: result.error.message,
         });
 
@@ -52,39 +49,18 @@ const TableManagement = ({ query }: TableManagementProps) => {
     },
   });
 
-  const filterFields: DataTableFilterField<TableTypes>[] = [
+  const filterFields: DataTableFilterField<OrderTypes>[] = [
     {
       label: "Name",
-      value: "name",
-      placeholder: "Search by name...",
-    },
-    {
-      label: "Status",
-      value: "status",
-      options: [
-        {
-          label: "Available",
-          value: "available",
-          withCount: false,
-        },
-        {
-          label: "Unvailable",
-          value: "unavailable",
-          withCount: false,
-        },
-        {
-          label: "Reserved",
-          value: "reserved",
-          withCount: false,
-        },
-      ],
+      value: "order_id",
+      placeholder: "Search order ID/Customer name",
     },
   ];
 
   const { table } = useDataTable({
-    data: tables?.data ?? [],
+    data: orders?.data ?? [],
     columns,
-    pageCount: tables?.count ? Math.ceil(tables.count / query.size) : 0,
+    pageCount: orders?.count ? Math.ceil(orders.count / query.size) : 0,
     filterFields,
     getRowId: (originalRow, index) => `${originalRow.id}-${index}`,
     shallow: false,
@@ -95,14 +71,14 @@ const TableManagement = ({ query }: TableManagementProps) => {
     <main className="w-full p-4">
       <h1 className="font-bold text-2xl">Table Management</h1>
       <section className="mt-7 w-full">
-        <DataTable table={table} isLoading={isLoading} totalField={6}>
+        <DataTable table={table} isLoading={isLoading} totalField={7}>
           <DataTableAction
             table={table}
             filterFields={filterFields}
             renderNewAction={() => (
               <Button
                 onClick={() => {
-                  setSelectedMenu(null);
+                  // setSelectedMenu(null);
                   return setOpenDialog(true);
                 }}
               >
@@ -111,7 +87,7 @@ const TableManagement = ({ query }: TableManagementProps) => {
             )}
           />
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            {selectedMenu && selectedMenu.type === "update" ? (
+            {/* {selectedMenu && selectedMenu.type === "update" ? (
               <DialogUpdateTable refetch={refetch} />
             ) : selectedMenu && selectedMenu.type === "delete" ? (
               <DialogDeleteTable refetch={refetch} />
@@ -120,7 +96,11 @@ const TableManagement = ({ query }: TableManagementProps) => {
                 refetch={refetch}
                 closeDialog={() => setOpenDialog(false)}
               />
-            )}
+            )} */}
+            <DialogCreateOrder
+              refetch={refetch}
+              closeDialog={() => setOpenDialog(false)}
+            />
           </Dialog>
         </DataTable>
       </section>
@@ -128,4 +108,4 @@ const TableManagement = ({ query }: TableManagementProps) => {
   );
 };
 
-export default TableManagement;
+export default OrderManagement;

@@ -12,6 +12,7 @@ export const queryParamsSchema = z.object({
   size: z.coerce.number().default(10),
   name: z.string().optional(),
   status: z.string().optional(),
+  order_id: z.string().optional(),
   capacity: z.string().optional(),
 });
 

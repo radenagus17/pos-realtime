@@ -38,11 +38,10 @@ export default function DialogCreateTable({
 
   useEffect(() => {
     if (createTableState?.status === "error") {
-      toast.error("Create Table Failed", {
+      toast.error("Create table failed", {
         description: createTableState.errors?._form?.[0],
       });
     } else if (createTableState?.status === "success") {
-      console.log("render toast >>>>", createTableState);
       toast.success("Successfully", {
         description: "Create table success",
       });
@@ -50,7 +49,8 @@ export default function DialogCreateTable({
       closeDialog();
       refetch();
     }
-  }, [createTableState, form, closeDialog, refetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createTableState?.status]);
 
   return (
     <FormTable

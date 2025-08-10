@@ -67,7 +67,8 @@ const DialogCreateUser: FC<DialogCreateUserProps> = ({
       closeDialog();
       refetch();
     }
-  }, [createUserState, createUserForm, form, refetch, closeDialog]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createUserState?.status]);
 
   return (
     <FormUser

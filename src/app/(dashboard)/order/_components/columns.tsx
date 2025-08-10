@@ -15,13 +15,14 @@ import { CalendarCheck, EllipsisIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { TableTypes } from "@/types/table";
-import { useSetAtom } from "jotai";
-import { dialogFormAtom } from "@/stores/general-store";
-import { selectedTableAtom } from "@/stores/table-store";
+import { OrderTypes } from "@/types/order";
+// import { useSetAtom } from "jotai";
+// import { dialogFormAtom } from "@/stores/general-store";
+// import { selectedTableAtom } from "@/stores/table-store";
 
-function RowActions({ row }: { row: Row<TableTypes> }) {
-  const openDialogForm = useSetAtom(dialogFormAtom);
-  const setSelectedTable = useSetAtom(selectedTableAtom);
+function RowActions({ row }: { row: Row<OrderTypes> }) {
+  // const openDialogForm = useSetAtom(dialogFormAtom);
+  // const setSelectedTable = useSetAtom(selectedTableAtom);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -39,10 +40,10 @@ function RowActions({ row }: { row: Row<TableTypes> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => {
-              setSelectedTable({ ...row.original, type: "update" });
-              openDialogForm(true);
-            }}
+          // onClick={() => {
+          //   setSelectedTable({ ...row.original, type: "update" });
+          //   openDialogForm(true);
+          // }}
           >
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
@@ -54,10 +55,10 @@ function RowActions({ row }: { row: Row<TableTypes> }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
-            setSelectedTable({ ...row.original, type: "delete" });
-            openDialogForm(true);
-          }}
+          // onClick={() => {
+          //   setSelectedTable({ ...row.original, type: "delete" });
+          //   openDialogForm(true);
+          // }}
           className="text-destructive focus:text-destructive"
         >
           <span>Delete</span>
@@ -69,17 +70,18 @@ function RowActions({ row }: { row: Row<TableTypes> }) {
 }
 
 // Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<TableTypes> = (
+const multiColumnFilterFn: FilterFn<OrderTypes> = (
   row,
   columnId,
   filterValue
 ) => {
-  const searchableRowContent = `${row.original.name}`.toLowerCase();
+  const searchableRowContent =
+    `${row.original.order_id} ${row.original.customer_name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
 };
 
-const columns: ColumnDef<TableTypes>[] = [
+const columns: ColumnDef<OrderTypes>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -106,36 +108,39 @@ const columns: ColumnDef<TableTypes>[] = [
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="Order ID" />
     ),
-    accessorKey: "name",
+    accessorKey: "order_id",
     cell: ({ row }) => {
-      const name = row.original.name;
-      const description = row.original.description;
+      const order_id = row.original.order_id;
 
-      return (
-        <div className="flex flex-col py-2">
-          <h3 className="text-sm font-medium text-tenka-typography-error capitalize">
-            {name}
-          </h3>
-          <p className="text-xs text-muted-foreground">{description}</p>
-        </div>
-      );
+      return <h3 className="text-sm font-medium capitalize">{order_id}</h3>;
     },
-    size: 130,
+    size: 120,
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Capacity" />
+      <DataTableColumnHeader column={column} title="Customer Name" />
     ),
-    accessorKey: "capacity",
+    accessorKey: "customer_name",
     cell: ({ row }) => {
-      const capacity = row.original.capacity;
-      return <div className="flex flex-wrap gap-1">{capacity}</div>;
+      const customer = row.original.customer_name;
+      return <p>{customer}</p>;
     },
-    size: 90,
+    size: 140,
+  },
+  {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Table" />
+    ),
+    accessorKey: "table_id",
+    cell: ({ row }) => {
+      const table = row.original.tables as TableTypes;
+      return <p>{table.name}</p>;
+    },
+    size: 125,
   },
   {
     header: ({ column }) => (
@@ -145,20 +150,12 @@ const columns: ColumnDef<TableTypes>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <div className="flex flex-wrap gap-1">
-          <Badge
-            className="capitalize"
-            variant={
-              status === "available"
-                ? "success"
-                : status === "unavailable"
-                ? "outline"
-                : "default"
-            }
-          >
-            {status}
-          </Badge>
-        </div>
+        <Badge
+          className="capitalize"
+          variant={status === "process" ? "info" : "warning"}
+        >
+          {status}
+        </Badge>
       );
     },
     size: 90,

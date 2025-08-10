@@ -79,16 +79,17 @@ const UsersManagement = ({ query }: UsersManagementProps) => {
             table={table}
             filterFields={filterFields}
             renderNewAction={() => (
-              <Button onClick={() => setOpenDialog(true)}>Create</Button>
+              <Button
+                onClick={() => {
+                  setSelectedUser(null);
+                  return setOpenDialog(true);
+                }}
+              >
+                Create
+              </Button>
             )}
           />
-          <Dialog
-            open={openDialog}
-            onOpenChange={(e) => {
-              setSelectedUser(null);
-              return setOpenDialog(e);
-            }}
-          >
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
             {selectedUser && selectedUser.type === "update" ? (
               <DialogUpdateUser refetch={refetch} />
             ) : selectedUser && selectedUser.type === "delete" ? (
