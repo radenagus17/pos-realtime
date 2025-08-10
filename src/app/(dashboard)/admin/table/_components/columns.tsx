@@ -14,16 +14,11 @@ import { Button } from "@/components/ui/button";
 import { CalendarCheck, EllipsisIcon } from "lucide-react";
 import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useSetAtom } from "jotai";
-import { MenuTypes } from "@/types/menu";
-import { convertIDR } from "@/lib/utils";
-import { dialogFormAtom } from "@/stores/general-store";
-import { selectedMenuAtom } from "@/stores/menu-store";
+import { TableTypes } from "@/types/table";
 
-function RowActions({ row }: { row: Row<MenuTypes> }) {
-  const openDialogForm = useSetAtom(dialogFormAtom);
-  const setSelectedMenu = useSetAtom(selectedMenuAtom);
+function RowActions({ row }: { row: Row<TableTypes> }) {
+  // const openDialogForm = useSetAtom(dialogFormAtom);
+  // const setSelectedUser = useSetAtom(selectedUserAtom);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,10 +36,10 @@ function RowActions({ row }: { row: Row<MenuTypes> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem
-            onClick={() => {
-              setSelectedMenu({ ...row.original, type: "update" });
-              openDialogForm(true);
-            }}
+          // onClick={() => {
+          //   setSelectedUser({ ...row.original, type: "update" });
+          //   openDialogForm(true);
+          // }}
           >
             <span>Edit</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
@@ -56,10 +51,10 @@ function RowActions({ row }: { row: Row<MenuTypes> }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
-            setSelectedMenu({ ...row.original, type: "delete" });
-            openDialogForm(true);
-          }}
+          // onClick={() => {
+          //   setSelectedUser({ ...row.original, type: "delete" });
+          //   openDialogForm(true);
+          // }}
           className="text-destructive focus:text-destructive"
         >
           <span>Delete</span>
@@ -71,18 +66,17 @@ function RowActions({ row }: { row: Row<MenuTypes> }) {
 }
 
 // Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<MenuTypes> = (
+const multiColumnFilterFn: FilterFn<TableTypes> = (
   row,
   columnId,
   filterValue
 ) => {
-  const searchableRowContent =
-    `${row.original.name} ${row.original.category}`.toLowerCase();
+  const searchableRowContent = `${row.original.name}`.toLowerCase();
   const searchTerm = (filterValue ?? "").toLowerCase();
   return searchableRowContent.includes(searchTerm);
 };
 
-const columns: ColumnDef<MenuTypes>[] = [
+const columns: ColumnDef<TableTypes>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -113,81 +107,58 @@ const columns: ColumnDef<MenuTypes>[] = [
     ),
     accessorKey: "name",
     cell: ({ row }) => {
-      const image = row.original.image_url;
       const name = row.original.name;
-      const category = row.original.category;
+      const description = row.original.description;
 
       return (
-        <div className="flex items-center gap-3 py-2">
-          <Avatar className="rounded-md size-10">
-            <AvatarImage src={image} />
-            <AvatarFallback className="uppercase">
-              {name?.substring(0, 1) || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-sm font-semibold capitalize">
-              {name || "Unknown"}
-            </h3>
-            <p className="text-muted-foreground text-sm">#{category}</p>
-          </div>
+        <div className="flex flex-col py-2">
+          <h3 className="text-sm font-medium text-tenka-typography-error capitalize">
+            {name}
+          </h3>
+          <p className="text-xs text-muted-foreground">{description}</p>
         </div>
       );
     },
-    size: 110,
+    size: 130,
     filterFn: multiColumnFilterFn,
     enableHiding: false,
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
+      <DataTableColumnHeader column={column} title="Capacity" />
     ),
-    accessorKey: "description",
+    accessorKey: "capacity",
     cell: ({ row }) => {
-      const description = row.original.description;
-      return <p className="text-wrap line-clamp-2 max-w-64">{description}</p>;
+      const capacity = row.original.capacity;
+      return <div className="flex flex-wrap gap-1">{capacity}</div>;
     },
-    size: 150,
+    size: 90,
   },
   {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Price" />
+      <DataTableColumnHeader column={column} title="Status" />
     ),
-    accessorKey: "price",
+    accessorKey: "status",
     cell: ({ row }) => {
-      const base = row.original.price;
-      const discount = row.original.discount;
+      const status = row.original.status;
       return (
-        <ul>
-          <li className="text-wrap">Base: {base ? convertIDR(base) : "-"}</li>
-          <li className="text-wrap">
-            Discount: {discount ? discount + "%" : "-"}
-          </li>
-          <li className="text-wrap">
-            After Discount:{" "}
-            {discount && base
-              ? convertIDR(base - (base * discount) / 100)
-              : "-"}
-          </li>
-        </ul>
+        <div className="flex flex-wrap gap-1">
+          <Badge
+            className="capitalize"
+            variant={
+              status === "available"
+                ? "success"
+                : status === "unavailable"
+                ? "outline"
+                : "default"
+            }
+          >
+            {status}
+          </Badge>
+        </div>
       );
     },
-    size: 115,
-  },
-  {
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Available" />
-    ),
-    accessorKey: "is_available",
-    cell: ({ row }) => {
-      const available = row.original.is_available;
-      return (
-        <Badge variant={available ? "success" : "outline"}>
-          {available ? "Available" : "Not Available"}
-        </Badge>
-      );
-    },
-    size: 85,
+    size: 90,
   },
   {
     header: ({ column }) => (
@@ -208,7 +179,7 @@ const columns: ColumnDef<MenuTypes>[] = [
         </span>
       );
     },
-    size: 150,
+    size: 180,
   },
   {
     id: "actions",

@@ -14,7 +14,7 @@ import DataTableAction from "@/components/ui/data-table-action";
 import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
 import DialogCreateUser from "./dialog-create-user";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { selectedUserAtom } from "@/stores/user-store";
 import DialogUpdateUser from "./dialog-update-user";
 import DialogDeleteUser from "./dialog-delete-user";
@@ -31,7 +31,7 @@ type ResultTypes = {
 };
 
 const UsersManagement = ({ query }: UsersManagementProps) => {
-  const selectedUser = useAtomValue(selectedUserAtom);
+  const [selectedUser, setSelectedUser] = useAtom(selectedUserAtom);
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
 
   const {
@@ -82,7 +82,13 @@ const UsersManagement = ({ query }: UsersManagementProps) => {
               <Button onClick={() => setOpenDialog(true)}>Create</Button>
             )}
           />
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <Dialog
+            open={openDialog}
+            onOpenChange={(e) => {
+              setSelectedUser(null);
+              return setOpenDialog(e);
+            }}
+          >
             {selectedUser && selectedUser.type === "update" ? (
               <DialogUpdateUser refetch={refetch} />
             ) : selectedUser && selectedUser.type === "delete" ? (

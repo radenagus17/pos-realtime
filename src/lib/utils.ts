@@ -11,6 +11,8 @@ export const queryParamsSchema = z.object({
   page: z.coerce.number().default(1),
   size: z.coerce.number().default(10),
   name: z.string().optional(),
+  status: z.string().optional(),
+  capacity: z.string().optional(),
 });
 
 export type GetQueryParams = z.infer<typeof queryParamsSchema>;

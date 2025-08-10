@@ -39,8 +39,8 @@ const myMenu = {
           url: "/admin/menu",
         },
         {
-          title: "Log",
-          url: "/dashboard/logs",
+          title: "Table",
+          url: "/admin/table",
         },
       ],
     },

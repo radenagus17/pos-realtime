@@ -25,15 +25,15 @@ export const INITIAL_STATE_MENU = {
 
 export const CATEGORY_LIST = [
   {
-    value: "beverages",
+    value: "Beverages",
     label: "Beverages",
   },
   {
-    value: "mains",
+    value: "Mains",
     label: "Mains",
   },
   {
-    value: "desserts",
+    value: "Desserts",
     label: "Desserts",
   },
 ];
