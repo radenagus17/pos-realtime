@@ -14,6 +14,7 @@ export const queryParamsSchema = z.object({
   status: z.string().optional(),
   order_id: z.string().optional(),
   capacity: z.string().optional(),
+  category: z.string().optional(),
 });
 
 export type GetQueryParams = z.infer<typeof queryParamsSchema>;

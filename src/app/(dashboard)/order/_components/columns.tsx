@@ -16,13 +16,57 @@ import { format } from "date-fns";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import { TableTypes } from "@/types/table";
 import { OrderTypes } from "@/types/order";
-// import { useSetAtom } from "jotai";
-// import { dialogFormAtom } from "@/stores/general-store";
-// import { selectedTableAtom } from "@/stores/table-store";
+import { startTransition, useActionState, useEffect } from "react";
+import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
+import { updateReservation } from "../lib/actions";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
 function RowActions({ row }: { row: Row<OrderTypes> }) {
   // const openDialogForm = useSetAtom(dialogFormAtom);
   // const setSelectedTable = useSetAtom(selectedTableAtom);
+
+  const queryClient = useQueryClient();
+
+  const [reservedState, reservedAction] = useActionState(
+    updateReservation,
+    INITIAL_STATE_ACTION
+  );
+
+  const handleReservation = ({
+    id,
+    table_id,
+    status,
+  }: {
+    id: string;
+    table_id: string;
+    status: string;
+  }) => {
+    const formData = new FormData();
+    Object.entries({ id, table_id, status }).forEach(([Key, value]) => {
+      formData.append(Key, value);
+    });
+    startTransition(() => {
+      reservedAction(formData);
+    });
+  };
+
+  useEffect(() => {
+    if (reservedState?.status === "error") {
+      toast.error("Update Reservation Failed", {
+        description: reservedState.errors?._form?.[0],
+      });
+    }
+
+    if (reservedState?.status === "success") {
+      toast.success("Update Reservation Success");
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["tables"] });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reservedState?.status, queryClient]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -40,30 +84,42 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem
-          // onClick={() => {
-          //   setSelectedTable({ ...row.original, type: "update" });
-          //   openDialogForm(true);
-          // }}
+            disabled={row.original.status === "process"}
+            onClick={() => {
+              const table = row.original.tables as TableTypes;
+              handleReservation({
+                id: String(row.original.id),
+                table_id: String(table.id),
+                status: "process",
+              });
+            }}
           >
-            <span>Edit</span>
+            <span>Process</span>
+            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={row.original.status === "canceled"}
+            onClick={() => {
+              const table = row.original.tables as TableTypes;
+              handleReservation({
+                id: String(row.original.id),
+                table_id: String(table.id),
+                status: "canceled",
+              });
+            }}
+          >
+            <span>Canceled</span>
             <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Share</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link prefetch href={`/order/${row.original.order_id}`}>
+              Detail
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          // onClick={() => {
-          //   setSelectedTable({ ...row.original, type: "delete" });
-          //   openDialogForm(true);
-          // }}
-          className="text-destructive focus:text-destructive"
-        >
-          <span>Delete</span>
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -152,7 +208,13 @@ const columns: ColumnDef<OrderTypes>[] = [
       return (
         <Badge
           className="capitalize"
-          variant={status === "process" ? "info" : "warning"}
+          variant={
+            status === "process"
+              ? "info"
+              : status === "canceled"
+              ? "destructive"
+              : "warning"
+          }
         >
           {status}
         </Badge>

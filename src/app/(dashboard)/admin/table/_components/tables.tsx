@@ -2,14 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import columns from "./columns";
-import { useQuery } from "@tanstack/react-query";
-import { getTables } from "../lib/data";
-import { toast } from "sonner";
 import { DataTableFilterField } from "@/types/data-table";
 import { useDataTable } from "@/hooks/use-data-table";
 import DataTable from "@/components/ui/data-table";
 import DataTableAction from "@/components/ui/data-table-action";
-import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
 import { useAtom } from "jotai";
 import { dialogFormAtom } from "@/stores/general-store";
@@ -19,38 +15,17 @@ import DialogCreateTable from "./dialog-create-table";
 import { selectedTableAtom } from "@/stores/table-store";
 import DialogUpdateTable from "./dialog-update-table";
 import DialogDeleteTable from "./dialog-delete-table";
+import { useTables } from "@/hooks/use-tables";
 
 interface TableManagementProps {
   query: GetQueryParams;
 }
 
-type ResultTypes = {
-  data: TableTypes[] | null;
-  error: PostgrestError | null;
-  count: number | null;
-};
-
 const TableManagement = ({ query }: TableManagementProps) => {
   const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
 
-  const {
-    data: tables,
-    isLoading,
-    refetch,
-  } = useQuery<ResultTypes>({
-    queryKey: ["tables", query],
-    queryFn: async () => {
-      const result = await getTables(query);
-
-      if (result.error)
-        toast.error("Get Table data failed", {
-          description: result.error.message,
-        });
-
-      return result;
-    },
-  });
+  const { data: tables, isLoading, refetch } = useTables(query);
 
   const filterFields: DataTableFilterField<TableTypes>[] = [
     {

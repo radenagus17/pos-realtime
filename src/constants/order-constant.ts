@@ -24,3 +24,26 @@ export const STATUS_ORDER_LIST = [
     label: "Process",
   },
 ];
+
+export const FILTER_MENU = [
+  {
+    value: "",
+    label: "All",
+  },
+  {
+    value: "Mains",
+    label: "Mains",
+  },
+  {
+    value: "Sides",
+    label: "Sides",
+  },
+  {
+    value: "Desserts",
+    label: "Desserts",
+  },
+  {
+    value: "Beverages",
+    label: "Beverages",
+  },
+];

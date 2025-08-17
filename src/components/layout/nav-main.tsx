@@ -69,9 +69,7 @@ export function NavMain({
                         )}
                         className="data-[active=true]:bg-teal-50 dark:data-[active=true]:bg-teal-100 data-[active=true]:ring-1 data-[active=true]:ring-teal-500 data-[active=true]:hover:bg-teal-100 hover:ring-1 hover:ring-teal-500 dark:hover:text-primary-foreground dark:hover:bg-teal-100 hover:bg-teal-50 dark:data-[active=true]:text-primary-foreground"
                       >
-                        <Link prefetch href={subItem.url}>
-                          {subItem.title}
-                        </Link>
+                        <a href={subItem.url}>{subItem.title}</a>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   ))}

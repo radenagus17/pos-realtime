@@ -1,3 +1,4 @@
+import { MenuTypes } from "./menu";
 import { TableTypes } from "./table";
 
 export type OrderTypes = {
@@ -8,6 +9,18 @@ export type OrderTypes = {
   payment_url?: string;
   table_id?: number;
   tables?: TableTypes | unknown;
+  created_at?: Date;
+  updated_at?: Date;
+};
+
+export type OrderMenuTypes = {
+  id?: number;
+  order_id?: number;
+  menu_id?: number;
+  status?: string;
+  quantity?: number;
+  notes?: string;
+  menus?: MenuTypes | unknown;
   created_at?: Date;
   updated_at?: Date;
 };

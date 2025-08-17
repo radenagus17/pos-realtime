@@ -69,7 +69,7 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
 
   return (
     <main className="w-full p-4">
-      <h1 className="font-bold text-2xl">Table Management</h1>
+      <h1 className="font-bold text-2xl">Order Management</h1>
       <section className="mt-7 w-full">
         <DataTable table={table} isLoading={isLoading} totalField={7}>
           <DataTableAction

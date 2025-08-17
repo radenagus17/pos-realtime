@@ -9,8 +9,7 @@ import {
 import { INITIAL_ORDER, INITIAL_STATE_ORDER } from "@/constants/order-constant";
 import { createOrder } from "../lib/actions";
 import FormOrder from "./form-order";
-import { createClient } from "@/lib/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useTables } from "@/hooks/use-tables";
 
 export default function DialogCreateOrder({
   refetch,
@@ -24,20 +23,7 @@ export default function DialogCreateOrder({
     defaultValues: INITIAL_ORDER,
   });
 
-  const supabase = createClient();
-
-  const { data: tables, refetch: refetchTables } = useQuery({
-    queryKey: ["tables"],
-    queryFn: async () => {
-      const result = await supabase
-        .from("tables")
-        .select("*")
-        .order("created_at")
-        .order("status");
-
-      return result.data;
-    },
-  });
+  const { data: tables, refetch: refetchTable } = useTables();
 
   const [createOrderState, createOrderAction, isPendingCreateOrder] =
     useActionState(createOrder, INITIAL_STATE_ORDER);
@@ -65,7 +51,7 @@ export default function DialogCreateOrder({
       form.reset();
       closeDialog();
       refetch();
-      refetchTables();
+      refetchTable();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createOrderState?.status]);
@@ -76,7 +62,7 @@ export default function DialogCreateOrder({
       onSubmit={onSubmit}
       isLoading={isPendingCreateOrder}
       type="Create"
-      tables={tables ?? []}
+      tables={tables?.data ?? []}
     />
   );
 }
