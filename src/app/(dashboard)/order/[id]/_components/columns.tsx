@@ -4,10 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -17,10 +14,42 @@ import { OrderMenuTypes } from "@/types/order";
 import { MenuTypes } from "@/types/menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { convertIDR } from "@/lib/utils";
+import { startTransition, useActionState, useEffect } from "react";
+import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
+import { toast } from "sonner";
+import { updateStatusOrderitem } from "../../lib/actions";
 
 function RowActions({ row }: { row: Row<OrderMenuTypes> }) {
-  // const openDialogForm = useSetAtom(dialogFormAtom);
-  // const setSelectedTable = useSetAtom(selectedTableAtom);
+  const [updateStatusOrderState, updateStatusOrderAction] = useActionState(
+    updateStatusOrderitem,
+    INITIAL_STATE_ACTION
+  );
+
+  useEffect(() => {
+    if (updateStatusOrderState?.status === "error") {
+      toast.error("Update Status Order Failed", {
+        description: updateStatusOrderState.errors?._form?.[0],
+      });
+    }
+
+    if (updateStatusOrderState?.status === "success") {
+      toast.success("Update Status Order Success");
+    }
+  }, [updateStatusOrderState?.status]);
+
+  const handleUpdateStatusOrder = async (data: {
+    id: string;
+    status: string;
+  }) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([Key, value]) => {
+      formData.append(Key, value);
+    });
+
+    startTransition(() => {
+      updateStatusOrderAction(formData);
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -37,20 +66,25 @@ function RowActions({ row }: { row: Row<OrderMenuTypes> }) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <span>Process</span>
-            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <span>Canceled</span>
-            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>Detail</DropdownMenuItem>
-        </DropdownMenuGroup>
+        {["pending", "process", "ready"].map((status, index) => {
+          const nextStatus = ["process", "ready", "served"][index];
+          return (
+            row.original.status === status && (
+              <DropdownMenuItem
+                key={status}
+                onClick={() =>
+                  handleUpdateStatusOrder({
+                    id: String(row.original.id),
+                    status: nextStatus,
+                  })
+                }
+                className="capitalize"
+              >
+                {nextStatus}
+              </DropdownMenuItem>
+            )
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -149,6 +183,10 @@ const columns: ColumnDef<OrderMenuTypes>[] = [
           variant={
             status === "process"
               ? "info"
+              : status === "served"
+              ? "success"
+              : status === "ready"
+              ? "default"
               : status === "canceled"
               ? "destructive"
               : "warning"

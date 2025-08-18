@@ -10,6 +10,7 @@ import { INITIAL_ORDER, INITIAL_STATE_ORDER } from "@/constants/order-constant";
 import { createOrder } from "../lib/actions";
 import FormOrder from "./form-order";
 import { useTables } from "@/hooks/use-tables";
+import { createClientSupabase } from "@/lib/supabase/default";
 
 export default function DialogCreateOrder({
   refetch,
@@ -18,12 +19,35 @@ export default function DialogCreateOrder({
   refetch: () => void;
   closeDialog: () => void;
 }) {
+  const supabase = createClientSupabase();
+
   const form = useForm<OrderFormSchema>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: INITIAL_ORDER,
   });
 
   const { data: tables, refetch: refetchTable } = useTables();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("change-table")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tables",
+        },
+        () => {
+          refetchTable();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, refetchTable]);
 
   const [createOrderState, createOrderAction, isPendingCreateOrder] =
     useActionState(createOrder, INITIAL_STATE_ORDER);
@@ -51,9 +75,7 @@ export default function DialogCreateOrder({
       form.reset();
       closeDialog();
       refetch();
-      refetchTable();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createOrderState?.status]);
 
   return (

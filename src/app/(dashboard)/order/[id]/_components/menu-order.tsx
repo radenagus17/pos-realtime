@@ -11,6 +11,10 @@ import columns from "./columns";
 import Summary from "./summary";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { profileAtom } from "@/stores/auth-store";
+import { useAtomValue } from "jotai";
+import { createClientSupabase } from "@/lib/supabase/default";
+import { useEffect } from "react";
 
 interface MenuOrderManagementProps {
   query: GetQueryParams;
@@ -18,6 +22,9 @@ interface MenuOrderManagementProps {
 }
 
 const MenuOrderManagement = ({ query, orderId }: MenuOrderManagementProps) => {
+  const profile = useAtomValue(profileAtom);
+  const supabase = createClientSupabase();
+
   const {
     data: order,
     isLoading,
@@ -27,6 +34,30 @@ const MenuOrderManagement = ({ query, orderId }: MenuOrderManagementProps) => {
     queryFn: () => getOrderById(orderId, query),
     enabled: !!orderId, // Only run if orderId is available
   });
+
+  useEffect(() => {
+    if (!order?.dataOrder?.id) return;
+
+    const channel = supabase
+      .channel("change-menu-order")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders_menus",
+          filter: `order_id=eq.${order.dataOrder.id}`,
+        },
+        () => {
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [order?.dataOrder?.id, refetch, supabase]);
 
   const { table } = useDataTable({
     data: order?.orderMenu ?? [],
@@ -50,7 +81,12 @@ const MenuOrderManagement = ({ query, orderId }: MenuOrderManagementProps) => {
           <DataTableAction
             table={table}
             renderNewAction={() => (
-              <Button asChild>
+              <Button
+                asChild
+                className={`${
+                  profile.role !== "kitchen" ? "visible" : "invisible"
+                }`}
+              >
                 <Link prefetch href={`/order/${orderId}/add`}>
                   Add Order Item
                 </Link>

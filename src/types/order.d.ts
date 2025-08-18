@@ -6,7 +6,7 @@ export type OrderTypes = {
   order_id?: string;
   customer_name?: string;
   status?: string;
-  payment_url?: string;
+  payment_token?: string;
   table_id?: number;
   tables?: TableTypes | unknown;
   created_at?: Date;
@@ -23,6 +23,15 @@ export type OrderMenuTypes = {
   menus?: MenuTypes | unknown;
   created_at?: Date;
   updated_at?: Date;
+};
+
+export type CartTypes = {
+  menu_id: string;
+  quantity: number;
+  total: number;
+  notes: string;
+  menu: MenuTypes;
+  order_id?: string;
 };
 
 export type OrderFormState = {

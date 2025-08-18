@@ -19,7 +19,7 @@ export async function getOrders(query: GetQueryParams) {
     res = await supabase
       .from("orders")
       .select(
-        `id, order_id, customer_name, status, payment_url, table_id, created_at, tables (name, id)`,
+        `id, order_id, customer_name, status, payment_token, table_id, created_at, tables (name, id)`,
         { count: "exact" }
       )
       .range((query.page - 1) * query.size, query.page * query.size - 1)
@@ -31,7 +31,7 @@ export async function getOrders(query: GetQueryParams) {
     res = await supabase
       .from("orders")
       .select(
-        `id, order_id, customer_name, status, payment_url, table_id, created_at, tables (name, id)`,
+        `id, order_id, customer_name, status, payment_token, table_id, created_at, tables (name, id)`,
         { count: "exact" }
       )
       .range((query.page - 1) * query.size, query.page * query.size - 1)
@@ -49,7 +49,7 @@ export async function getOrderById(
 
   const resOrder = await supabase
     .from("orders")
-    .select("id, customer_name, status, payment_url, tables (name, id)")
+    .select("id, customer_name, status, payment_token, tables (name, id)")
     .eq("order_id", orderId)
     .single();
 

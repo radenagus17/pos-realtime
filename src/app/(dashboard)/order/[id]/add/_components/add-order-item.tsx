@@ -10,10 +10,12 @@ import { FILTER_MENU } from "@/constants/order-constant";
 import { parseAsString, useQueryState, UseQueryStateOptions } from "nuqs";
 import LoadingCardMenu from "./loading-card-menu";
 import CardMenu from "./card-menu";
-import { useMemo } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useDebouncedCallback } from "@/hooks/use-debounce-callback";
 import CartSection from "./cart";
-import { OrderTypes } from "@/types/order";
+import { CartTypes, OrderTypes } from "@/types/order";
+import { MenuTypes } from "@/types/menu";
+import { addOrderItem } from "../../../lib/actions";
 
 export default function AddOrderItem({
   orderId,
@@ -44,6 +46,10 @@ export default function AddOrderItem({
     "name",
     parseAsString.withOptions(queryStateOptions).withDefault(query.name || "")
   );
+
+  const [carts, setCarts] = useState<CartTypes[]>([]);
+
+  const [isPendingAddItem, startAddItem] = useTransition();
 
   const debouncedSetFilterValues = useDebouncedCallback(
     setSearchName,
@@ -80,7 +86,7 @@ export default function AddOrderItem({
     queryFn: async () => {
       const result = await supabase
         .from("orders")
-        .select("id, customer_name, status, payment_url, tables (name, id)")
+        .select("id, customer_name, status, payment_token, tables (name, id)")
         .eq("order_id", orderId)
         .single();
 
@@ -93,6 +99,70 @@ export default function AddOrderItem({
     },
     enabled: !!orderId,
   });
+
+  const handleAddToCart = (
+    menu: MenuTypes,
+    action: "increment" | "decrement"
+  ) => {
+    const existingItem = carts.find((item) => +item.menu_id === menu.id);
+    if (existingItem) {
+      if (action === "decrement") {
+        if (existingItem.quantity > 1) {
+          setCarts(
+            carts.map((item) =>
+              +item.menu_id === menu.id
+                ? {
+                    ...item,
+                    quantity: item.quantity - 1,
+                    total: item.total - (menu.price || 0),
+                  }
+                : item
+            )
+          );
+        } else {
+          setCarts(carts.filter((item) => +item.menu_id !== menu.id));
+        }
+      } else {
+        setCarts(
+          carts.map((item) =>
+            +item.menu_id === menu.id
+              ? {
+                  ...item,
+                  quantity: item.quantity + 1,
+                  total: item.total + (menu.price || 0),
+                }
+              : item
+          )
+        );
+      }
+    } else {
+      setCarts([
+        ...carts,
+        {
+          menu_id: String(menu.id),
+          quantity: 1,
+          total: Number(menu.price),
+          notes: "",
+          menu,
+        },
+      ]);
+    }
+  };
+
+  const handleOrder = async () => {
+    const payload = {
+      carts: carts.map((item) => ({
+        order_id: order?.id ?? "",
+        status: "pending",
+        ...item,
+      })),
+      invoice: orderId ?? "",
+    };
+
+    startAddItem(() => {
+      addOrderItem(payload);
+    });
+  };
 
   return (
     <article className="flex flex-col lg:flex-row gap-4 w-full px-4 py-6">
@@ -124,7 +194,11 @@ export default function AddOrderItem({
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 w-full gap-4">
             {menus?.data?.map((menu) => (
-              <CardMenu menu={menu} key={`menu-${menu.id}`} />
+              <CardMenu
+                menu={menu}
+                key={`menu-${menu.id}`}
+                onAddToCart={handleAddToCart}
+              />
             ))}
           </div>
         )}
@@ -133,7 +207,14 @@ export default function AddOrderItem({
         )}
       </section>
       <section className="lg:w-1/3">
-        <CartSection order={order as Partial<OrderTypes>} />
+        <CartSection
+          order={order as Partial<OrderTypes>}
+          carts={carts}
+          setCarts={setCarts}
+          onAddToCart={handleAddToCart}
+          onOrder={handleOrder}
+          isLoading={isPendingAddItem}
+        />
       </section>
     </article>
   );

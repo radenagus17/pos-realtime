@@ -9,13 +9,16 @@ import DataTable from "@/components/ui/data-table";
 import DataTableAction from "@/components/ui/data-table-action";
 import { PostgrestError } from "@supabase/supabase-js";
 import { GetQueryParams } from "@/lib/utils";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { dialogFormAtom } from "@/stores/general-store";
 import { Dialog } from "@/components/ui/dialog";
 import { OrderTypes } from "@/types/order";
 import { getOrders } from "../lib/data";
 import columns from "./columns";
 import DialogCreateOrder from "./dialog-create-order";
+import { profileAtom } from "@/stores/auth-store";
+import { createClientSupabase } from "@/lib/supabase/default";
+import { useEffect } from "react";
 
 interface OrderManagementProps {
   query: GetQueryParams;
@@ -29,7 +32,9 @@ type ResultTypes = {
 
 const OrderManagement = ({ query }: OrderManagementProps) => {
   // const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
+  const supabase = createClientSupabase();
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
+  const profile = useAtomValue(profileAtom);
 
   const {
     data: orders,
@@ -48,6 +53,28 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
       return result;
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("change-order")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        () => {
+          refetch();
+          // refetchTables();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, refetch]);
 
   const filterFields: DataTableFilterField<OrderTypes>[] = [
     {
@@ -77,26 +104,16 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
             filterFields={filterFields}
             renderNewAction={() => (
               <Button
-                onClick={() => {
-                  // setSelectedMenu(null);
-                  return setOpenDialog(true);
-                }}
+                className={`${
+                  profile?.role !== "admin" ? "invisible" : "visible"
+                }`}
+                onClick={() => setOpenDialog(true)}
               >
                 Create
               </Button>
             )}
           />
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            {/* {selectedMenu && selectedMenu.type === "update" ? (
-              <DialogUpdateTable refetch={refetch} />
-            ) : selectedMenu && selectedMenu.type === "delete" ? (
-              <DialogDeleteTable refetch={refetch} />
-            ) : (
-              <DialogCreateTable
-                refetch={refetch}
-                closeDialog={() => setOpenDialog(false)}
-              />
-            )} */}
             <DialogCreateOrder
               refetch={refetch}
               closeDialog={() => setOpenDialog(false)}

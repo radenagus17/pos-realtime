@@ -22,10 +22,11 @@ import { updateReservation } from "../lib/actions";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useAtomValue } from "jotai";
+import { profileAtom } from "@/stores/auth-store";
 
 function RowActions({ row }: { row: Row<OrderTypes> }) {
-  // const openDialogForm = useSetAtom(dialogFormAtom);
-  // const setSelectedTable = useSetAtom(selectedTableAtom);
+  const profile = useAtomValue(profileAtom);
 
   const queryClient = useQueryClient();
 
@@ -61,10 +62,8 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
 
     if (reservedState?.status === "success") {
       toast.success("Update Reservation Success");
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["tables"] });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reservedState?.status, queryClient]);
 
   return (
@@ -82,37 +81,47 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            disabled={row.original.status === "process"}
-            onClick={() => {
-              const table = row.original.tables as TableTypes;
-              handleReservation({
-                id: String(row.original.id),
-                table_id: String(table.id),
-                status: "process",
-              });
-            }}
-          >
-            <span>Process</span>
-            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={row.original.status === "canceled"}
-            onClick={() => {
-              const table = row.original.tables as TableTypes;
-              handleReservation({
-                id: String(row.original.id),
-                table_id: String(table.id),
-                status: "canceled",
-              });
-            }}
-          >
-            <span>Canceled</span>
-            <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {profile.role === "admin" && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                disabled={
+                  row.original.status === "process" ||
+                  row.original.status === "settled"
+                }
+                onClick={() => {
+                  const table = row.original.tables as TableTypes;
+                  handleReservation({
+                    id: String(row.original.id),
+                    table_id: String(table.id),
+                    status: "process",
+                  });
+                }}
+              >
+                <span>Process</span>
+                <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={
+                  row.original.status === "canceled" ||
+                  row.original.status === "settled"
+                }
+                onClick={() => {
+                  const table = row.original.tables as TableTypes;
+                  handleReservation({
+                    id: String(row.original.id),
+                    table_id: String(table.id),
+                    status: "canceled",
+                  });
+                }}
+              >
+                <span>Canceled</span>
+                <DropdownMenuShortcut>⌘E</DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link prefetch href={`/order/${row.original.order_id}`}>
@@ -211,6 +220,8 @@ const columns: ColumnDef<OrderTypes>[] = [
           variant={
             status === "process"
               ? "info"
+              : status === "settled"
+              ? "success"
               : status === "canceled"
               ? "destructive"
               : "warning"

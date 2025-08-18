@@ -123,7 +123,6 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={myMenu.navMain} />
-        <SidebarGroup />
       </SidebarContent>
       <SidebarFooter>
         <NavAdmin user={profile} />

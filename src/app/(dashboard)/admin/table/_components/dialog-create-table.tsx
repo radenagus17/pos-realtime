@@ -49,7 +49,6 @@ export default function DialogCreateTable({
       closeDialog();
       refetch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createTableState?.status]);
 
   return (
