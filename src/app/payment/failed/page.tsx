@@ -1,7 +1,7 @@
 import Failed from "./_components/failed";
 
 export const metadata = {
-  title: "WPU Cafe | Payment Failed",
+  title: "Payment Failed | POS Realtime",
 };
 
 export default function FailedPage() {
