@@ -6,4 +6,9 @@ export const orderFormSchema = z.object({
   status: z.string().min(1, "Select a status"),
 });
 
+export const orderTakeawayFormSchema = z.object({
+  customer_name: z.string().min(1, "Customer name is required"),
+});
+
 export type OrderFormSchema = z.infer<typeof orderFormSchema>;
+export type OrderTakeawaySchema = z.infer<typeof orderTakeawayFormSchema>;

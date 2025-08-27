@@ -3,54 +3,30 @@ import { startTransition, useActionState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  orderFormSchema,
-  OrderFormSchema,
+  orderTakeawayFormSchema,
+  OrderTakeawaySchema,
 } from "@/validations/order-validation";
-import { INITIAL_ORDER, INITIAL_STATE_ORDER } from "@/constants/order-constant";
-import { createOrder } from "../lib/actions";
+import {
+  INITIAL_ORDER_TAKEAWAY,
+  INITIAL_STATE_ORDER_TAKEAWAY,
+} from "@/constants/order-constant";
+import { createOrderTakeaway } from "../lib/actions";
 import FormOrder from "./form-order";
-import { useTables } from "@/hooks/use-tables";
-import { createClientSupabase } from "@/lib/supabase/default";
 
-export default function DialogCreateOrder({
+export default function DialogCreateOrderTakeaway({
   refetch,
   closeDialog,
 }: {
   refetch: () => void;
   closeDialog: () => void;
 }) {
-  const supabase = createClientSupabase();
-
-  const form = useForm<OrderFormSchema>({
-    resolver: zodResolver(orderFormSchema),
-    defaultValues: INITIAL_ORDER,
+  const form = useForm<OrderTakeawaySchema>({
+    resolver: zodResolver(orderTakeawayFormSchema),
+    defaultValues: INITIAL_ORDER_TAKEAWAY,
   });
 
-  const { data: tables, refetch: refetchTable } = useTables();
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("change-table")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "tables",
-        },
-        () => {
-          refetchTable();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [supabase, refetchTable]);
-
   const [createOrderState, createOrderAction, isPendingCreateOrder] =
-    useActionState(createOrder, INITIAL_STATE_ORDER);
+    useActionState(createOrderTakeaway, INITIAL_STATE_ORDER_TAKEAWAY);
 
   const onSubmit = form.handleSubmit((data) => {
     const formData = new FormData();
@@ -83,8 +59,7 @@ export default function DialogCreateOrder({
       form={form}
       onSubmit={onSubmit}
       isLoading={isPendingCreateOrder}
-      type="Create"
-      tables={tables?.data ?? []}
+      type="Takeaway"
     />
   );
 }

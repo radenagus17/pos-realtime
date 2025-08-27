@@ -15,6 +15,7 @@ import { profileAtom } from "@/stores/auth-store";
 import { useAtomValue } from "jotai";
 import { createClientSupabase } from "@/lib/supabase/default";
 import { useEffect } from "react";
+import Receipt from "./receipt";
 
 interface MenuOrderManagementProps {
   query: GetQueryParams;
@@ -50,7 +51,7 @@ const MenuOrderManagement = ({ query, orderId }: MenuOrderManagementProps) => {
         },
         () => {
           refetch();
-        }
+        },
       )
       .subscribe();
 
@@ -81,16 +82,25 @@ const MenuOrderManagement = ({ query, orderId }: MenuOrderManagementProps) => {
           <DataTableAction
             table={table}
             renderNewAction={() => (
-              <Button
-                asChild
-                className={`${
-                  profile.role !== "kitchen" ? "visible" : "invisible"
-                }`}
-              >
-                <Link prefetch href={`/order/${orderId}/add`}>
-                  Add Order Item
-                </Link>
-              </Button>
+              <>
+                <Button
+                  asChild
+                  className={`${
+                    profile.role !== "kitchen" ? "visible" : "invisible"
+                  }`}
+                >
+                  <Link prefetch href={`/order/${orderId}/add`}>
+                    Add Order Item
+                  </Link>
+                </Button>
+                {order?.dataOrder?.status === "settled" && (
+                  <Receipt
+                    order={order.dataOrder}
+                    orderMenu={order.orderMenu}
+                    orderId={orderId}
+                  />
+                )}
+              </>
             )}
           />
         </DataTable>

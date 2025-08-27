@@ -20,19 +20,19 @@ export async function getOrders(query: GetQueryParams) {
       .from("orders")
       .select(
         `id, order_id, customer_name, status, payment_token, table_id, created_at, tables (name, id)`,
-        { count: "exact" }
+        { count: "exact" },
       )
       .range((query.page - 1) * query.size, query.page * query.size - 1)
       .order("created_at")
       .or(
-        `customer_name.ilike.%${query.order_id}%,order_id.ilike.%${query.order_id}%`
+        `customer_name.ilike.%${query.order_id}%,order_id.ilike.%${query.order_id}%`,
       );
   } else {
     res = await supabase
       .from("orders")
       .select(
         `id, order_id, customer_name, status, payment_token, table_id, created_at, tables (name, id)`,
-        { count: "exact" }
+        { count: "exact" },
       )
       .range((query.page - 1) * query.size, query.page * query.size - 1)
       .order("created_at");
@@ -43,13 +43,15 @@ export async function getOrders(query: GetQueryParams) {
 
 export async function getOrderById(
   orderId: string,
-  query: GetQueryParams
+  query: GetQueryParams,
 ): Promise<ResponseTypes> {
   const supabase = await createClient();
 
   const resOrder = await supabase
     .from("orders")
-    .select("id, customer_name, status, payment_token, tables (name, id)")
+    .select(
+      "id, customer_name, status, payment_token, tables (name, id), created_at",
+    )
     .eq("order_id", orderId)
     .single();
 

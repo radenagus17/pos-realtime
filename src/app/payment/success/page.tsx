@@ -1,6 +1,7 @@
+import { Metadata } from "next";
 import Success from "./_components/success";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Payment Success | POS Realtime",
 };
 

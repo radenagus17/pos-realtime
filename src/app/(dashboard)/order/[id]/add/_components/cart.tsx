@@ -28,7 +28,7 @@ export default function CartSection({
 }) {
   const handleAddNote = (id: string, notes: string) => {
     setCarts(
-      carts.map((item) => (item.menu_id === id ? { ...item, notes } : item))
+      carts.map((item) => (item.menu_id === id ? { ...item, notes } : item)),
     );
   };
 
@@ -47,7 +47,10 @@ export default function CartSection({
             <div className="space-y-2">
               <Label>Table</Label>
               <Input
-                value={(order?.tables as unknown as { name: string })?.name}
+                value={
+                  (order?.tables as unknown as { name: string })?.name ||
+                  "Takeaway"
+                }
                 disabled
               />
             </div>

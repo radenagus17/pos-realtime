@@ -15,10 +15,20 @@ import { Dialog } from "@/components/ui/dialog";
 import { OrderTypes } from "@/types/order";
 import { getOrders } from "../lib/data";
 import columns from "./columns";
-import DialogCreateOrder from "./dialog-create-order";
+import DialogCreateOrderDineIn from "./dialog-create-order-dine-in";
 import { profileAtom } from "@/stores/auth-store";
 import { createClientSupabase } from "@/lib/supabase/default";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Package, Utensils } from "lucide-react";
+import DialogCreateOrderTakeaway from "./dialog-create-order-takeaway";
 
 interface OrderManagementProps {
   query: GetQueryParams;
@@ -30,11 +40,19 @@ type ResultTypes = {
   count: number | null;
 };
 
+enum SelectedOrder {
+  dine = "dinein",
+  take = "takeaway",
+  empty = "",
+}
+
 const OrderManagement = ({ query }: OrderManagementProps) => {
-  // const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
   const supabase = createClientSupabase();
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
   const profile = useAtomValue(profileAtom);
+  const [selectedOrder, setSelectedOrder] = useState<SelectedOrder>(
+    SelectedOrder.empty,
+  );
 
   const {
     data: orders,
@@ -66,8 +84,7 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
         },
         () => {
           refetch();
-          // refetchTables();
-        }
+        },
       )
       .subscribe();
 
@@ -103,21 +120,55 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
             table={table}
             filterFields={filterFields}
             renderNewAction={() => (
-              <Button
-                className={`${
-                  profile?.role !== "admin" ? "invisible" : "visible"
-                }`}
-                onClick={() => setOpenDialog(true)}
-              >
-                Create
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={`${
+                    profile?.role !== "admin" ? "invisible" : "visible"
+                  }`}
+                  asChild
+                >
+                  <Button>Create</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel className="font-bold">
+                    Create Order
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setOpenDialog(true);
+                      setSelectedOrder(SelectedOrder.dine);
+                    }}
+                  >
+                    <Utensils className="size-4" />
+                    Dine In
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setOpenDialog(true);
+                      setSelectedOrder(SelectedOrder.take);
+                    }}
+                  >
+                    <Package className="size-4" />
+                    Takeaway
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           />
           <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <DialogCreateOrder
-              refetch={refetch}
-              closeDialog={() => setOpenDialog(false)}
-            />
+            {selectedOrder === SelectedOrder.dine && (
+              <DialogCreateOrderDineIn
+                refetch={refetch}
+                closeDialog={() => setOpenDialog(false)}
+              />
+            )}
+            {selectedOrder === SelectedOrder.take && (
+              <DialogCreateOrderTakeaway
+                refetch={refetch}
+                closeDialog={() => setOpenDialog(false)}
+              />
+            )}
           </Dialog>
         </DataTable>
       </section>

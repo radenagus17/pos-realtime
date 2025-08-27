@@ -32,7 +32,7 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
 
   const [reservedState, reservedAction] = useActionState(
     updateReservation,
-    INITIAL_STATE_ACTION
+    INITIAL_STATE_ACTION,
   );
 
   const handleReservation = ({
@@ -41,13 +41,15 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
     status,
   }: {
     id: string;
-    table_id: string;
+    table_id?: string;
     status: string;
   }) => {
     const formData = new FormData();
-    Object.entries({ id, table_id, status }).forEach(([Key, value]) => {
-      formData.append(Key, value);
-    });
+    formData.append("id", id);
+    formData.append("status", status);
+    if (table_id !== undefined) {
+      formData.append("table_id", table_id);
+    }
     startTransition(() => {
       reservedAction(formData);
     });
@@ -93,7 +95,7 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
                   const table = row.original.tables as TableTypes;
                   handleReservation({
                     id: String(row.original.id),
-                    table_id: String(table.id),
+                    table_id: table ? String(table.id) : undefined,
                     status: "process",
                   });
                 }}
@@ -110,7 +112,7 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
                   const table = row.original.tables as TableTypes;
                   handleReservation({
                     id: String(row.original.id),
-                    table_id: String(table.id),
+                    table_id: table ? String(table.id) : undefined,
                     status: "canceled",
                   });
                 }}
@@ -138,7 +140,7 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
 const multiColumnFilterFn: FilterFn<OrderTypes> = (
   row,
   columnId,
-  filterValue
+  filterValue,
 ) => {
   const searchableRowContent =
     `${row.original.order_id} ${row.original.customer_name}`.toLowerCase();
@@ -203,7 +205,7 @@ const columns: ColumnDef<OrderTypes>[] = [
     accessorKey: "table_id",
     cell: ({ row }) => {
       const table = row.original.tables as TableTypes;
-      return <p>{table.name}</p>;
+      return <p>{table?.name || "Takeaway"}</p>;
     },
     size: 125,
   },
@@ -221,10 +223,10 @@ const columns: ColumnDef<OrderTypes>[] = [
             status === "process"
               ? "info"
               : status === "settled"
-              ? "success"
-              : status === "canceled"
-              ? "destructive"
-              : "warning"
+                ? "success"
+                : status === "canceled"
+                  ? "destructive"
+                  : "warning"
           }
         >
           {status}
@@ -242,7 +244,7 @@ const columns: ColumnDef<OrderTypes>[] = [
       const registered = row.original.created_at
         ? format(
             new Date(row.getValue("created_at")),
-            "EEEE, dd MMM yyyy || HH:mm:ss"
+            "EEEE, dd MMM yyyy || HH:mm:ss",
           )
         : "N/A";
       return (

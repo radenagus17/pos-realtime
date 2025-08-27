@@ -26,8 +26,8 @@ export default function FormOrder<T extends FieldValues>({
   form: UseFormReturn<T>;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
-  tables: TableTypes[] | [];
-  type: "Create" | "Update";
+  tables?: TableTypes[] | [];
+  type: "Create" | "Update" | "Takeaway";
 }) {
   return (
     <DialogContent className="sm:max-w-[425px]">
@@ -37,7 +37,9 @@ export default function FormOrder<T extends FieldValues>({
           <DialogDescription>
             {type === "Create"
               ? "Create a new order"
-              : "Make changes order here"}
+              : type === "Takeaway"
+                ? "Create a new takeaway order"
+                : "Make changes order here"}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -47,22 +49,26 @@ export default function FormOrder<T extends FieldValues>({
             label="Customer Name"
             placeholder="Insert customer name here"
           />
-          <FormSelect
-            form={form}
-            name={"table_id" as Path<T>}
-            label="Table"
-            selectItem={tables.map((table) => ({
-              value: `${table.id}`,
-              label: `${table.name} - ${table.status} (${table.capacity})`,
-              disabled: table.status !== "available",
-            }))}
-          />
-          <FormSelect
-            form={form}
-            name={"status" as Path<T>}
-            label="Status"
-            selectItem={STATUS_ORDER_LIST}
-          />
+          {tables.length > 0 && (
+            <FormSelect
+              form={form}
+              name={"table_id" as Path<T>}
+              label="Table"
+              selectItem={tables.map((table) => ({
+                value: `${table.id}`,
+                label: `${table.name} - ${table.status} (${table.capacity})`,
+                disabled: table.status !== "available",
+              }))}
+            />
+          )}
+          {type === "Create" && (
+            <FormSelect
+              form={form}
+              name={"status" as Path<T>}
+              label="Status"
+              selectItem={STATUS_ORDER_LIST}
+            />
+          )}
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
@@ -73,7 +79,7 @@ export default function FormOrder<T extends FieldValues>({
                   <Loader2 className="animate-spin" /> Loading
                 </span>
               ) : (
-                type
+                "Order"
               )}
             </Button>
           </DialogFooter>
