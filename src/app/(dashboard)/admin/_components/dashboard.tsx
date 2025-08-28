@@ -43,7 +43,7 @@ export default function Dashboard() {
   const thisMonth = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
-    1,
+    1
   ).toISOString();
 
   const lastMonth = new Date(new Date().getFullYear(), 0, 1).toISOString();
@@ -67,7 +67,7 @@ export default function Dashboard() {
           const price = (item.menus as unknown as { price: number }).price;
           return sum + price * item.quantity;
         },
-        0,
+        0
       );
 
       const totalRevenueLastMonth = (dataLastMonth ?? []).reduce(
@@ -75,7 +75,7 @@ export default function Dashboard() {
           const price = (item.menus as unknown as { price: number }).price;
           return sum + price * item.quantity;
         },
-        0,
+        0
       );
 
       const growthRate =
@@ -91,8 +91,8 @@ export default function Dashboard() {
 
       const daysInData = new Set(
         (dataThisMonth ?? []).map((item) =>
-          new Date(item.created_at).toISOString().slice(0, 10),
-        ),
+          new Date(item.created_at).toISOString().slice(0, 10)
+        )
       ).size;
 
       const averageRevenueThisMonth =
@@ -222,7 +222,8 @@ export default function Dashboard() {
                     <h3 className="font-semibold">{order.customer_name}</h3>
                     <p className="text-sm text-muted-foreground">
                       Table:{" "}
-                      {(order.tables as unknown as { name: string }).name}
+                      {(order.tables as unknown as { name: string })?.name ||
+                        "Takeaway"}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Order ID: {order.id}
