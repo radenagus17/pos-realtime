@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Package, Utensils } from "lucide-react";
 import DialogCreateOrderTakeaway from "./dialog-create-order-takeaway";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TableMap from "./table-map";
 
 interface OrderManagementProps {
   query: GetQueryParams;
@@ -112,66 +114,79 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
   });
 
   return (
-    <main className="w-full p-4">
-      <h1 className="font-bold text-2xl">Order Management</h1>
-      <section className="mt-7 w-full">
-        <DataTable table={table} isLoading={isLoading} totalField={7}>
-          <DataTableAction
-            table={table}
-            filterFields={filterFields}
-            renderNewAction={() => (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  className={`${
-                    profile?.role !== "admin" ? "invisible" : "visible"
-                  }`}
-                  asChild
-                >
-                  <Button>Create</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel className="font-bold">
-                    Create Order
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setOpenDialog(true);
-                      setSelectedOrder(SelectedOrder.dine);
-                    }}
-                  >
-                    <Utensils className="size-4" />
-                    Dine In
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setOpenDialog(true);
-                      setSelectedOrder(SelectedOrder.take);
-                    }}
-                  >
-                    <Package className="size-4" />
-                    Takeaway
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          />
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            {selectedOrder === SelectedOrder.dine && (
-              <DialogCreateOrderDineIn
-                refetch={refetch}
-                closeDialog={() => setOpenDialog(false)}
+    <main className="p-4">
+      <Tabs defaultValue="list">
+        <div className="flex flex-col lg:flex-row mb-4 gap-2 justify-between w-full">
+          <h1 className="font-bold text-2xl">Order Management</h1>
+          <TabsList>
+            <TabsTrigger value="list">Order List</TabsTrigger>
+            <TabsTrigger value="map">Table Map</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="list">
+          <article>
+            <DataTable table={table} isLoading={isLoading} totalField={7}>
+              <DataTableAction
+                table={table}
+                filterFields={filterFields}
+                renderNewAction={() => (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      className={`${
+                        profile?.role !== "admin" ? "invisible" : "visible"
+                      }`}
+                      asChild
+                    >
+                      <Button>Create</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuLabel className="font-bold">
+                        Create Order
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setOpenDialog(true);
+                          setSelectedOrder(SelectedOrder.dine);
+                        }}
+                      >
+                        <Utensils className="size-4" />
+                        Dine In
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setOpenDialog(true);
+                          setSelectedOrder(SelectedOrder.take);
+                        }}
+                      >
+                        <Package className="size-4" />
+                        Takeaway
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               />
-            )}
-            {selectedOrder === SelectedOrder.take && (
-              <DialogCreateOrderTakeaway
-                refetch={refetch}
-                closeDialog={() => setOpenDialog(false)}
-              />
-            )}
-          </Dialog>
-        </DataTable>
-      </section>
+              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                {selectedOrder === SelectedOrder.dine && (
+                  <DialogCreateOrderDineIn
+                    refetch={refetch}
+                    closeDialog={() => setOpenDialog(false)}
+                  />
+                )}
+                {selectedOrder === SelectedOrder.take && (
+                  <DialogCreateOrderTakeaway
+                    refetch={refetch}
+                    closeDialog={() => setOpenDialog(false)}
+                  />
+                )}
+              </Dialog>
+            </DataTable>
+          </article>
+        </TabsContent>
+        <TabsContent value="map">
+          <TableMap />
+        </TabsContent>
+      </Tabs>
     </main>
   );
 };

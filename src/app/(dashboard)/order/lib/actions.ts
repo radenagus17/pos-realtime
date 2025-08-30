@@ -173,13 +173,14 @@ export async function addOrderItem(payload: {
   const supabase = await createClient();
 
   const carts = payload.carts.map((cart) => {
-    const { menu, total, ...cartWithoutMenu } = cart;
-    return cartWithoutMenu;
+    const nominal = Math.ceil(cart.nominal);
+    const { menu, ...cartWithoutMenu } = cart;
+    return { ...cartWithoutMenu, nominal };
   });
 
   const { error } = await supabase.from("orders_menus").insert(carts);
 
-  console.log(error);
+  if (error) console.log(error);
 
   redirect(`/order/${payload?.invoice}`);
 }

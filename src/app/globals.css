@@ -143,4 +143,9 @@
   .no-scrollbar::-webkit-scrollbar-thumb:hover {
     background: transparent;
   }
+
+  .react-flow__node {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
 }

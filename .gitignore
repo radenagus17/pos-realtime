@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 bun.lock
+package-lock.json
 
 # debug
 npm-debug.log*

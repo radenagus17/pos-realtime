@@ -3,6 +3,8 @@ export type TableTypes = {
   name?: string;
   description?: string;
   capacity?: number;
+  position_x?: number;
+  position_y?: number;
   status?: string;
   created_at?: Date;
   updated_at?: Date;

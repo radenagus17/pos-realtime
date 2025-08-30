@@ -40,11 +40,11 @@ export default function AddOrderItem({
     "category",
     parseAsString
       .withOptions(queryStateOptions)
-      .withDefault(query.category || "")
+      .withDefault(query.category || ""),
   );
   const [searchName, setSearchName] = useQueryState(
     "name",
-    parseAsString.withOptions(queryStateOptions).withDefault(query.name || "")
+    parseAsString.withOptions(queryStateOptions).withDefault(query.name || ""),
   );
 
   const [carts, setCarts] = useState<CartTypes[]>([]);
@@ -53,7 +53,7 @@ export default function AddOrderItem({
 
   const debouncedSetFilterValues = useDebouncedCallback(
     setSearchName,
-    queryStateOptions.debounceMs
+    queryStateOptions.debounceMs,
   );
 
   const { data: menus, isLoading: isLoadingMenu } = useQuery({
@@ -102,9 +102,11 @@ export default function AddOrderItem({
 
   const handleAddToCart = (
     menu: MenuTypes,
-    action: "increment" | "decrement"
+    action: "increment" | "decrement",
   ) => {
     const existingItem = carts.find((item) => +item.menu_id === menu.id);
+    const priceAfterDiscount =
+      menu.price! - menu.price! * ((menu.discount || 0) / 100);
     if (existingItem) {
       if (action === "decrement") {
         if (existingItem.quantity > 1) {
@@ -114,10 +116,10 @@ export default function AddOrderItem({
                 ? {
                     ...item,
                     quantity: item.quantity - 1,
-                    total: item.total - (menu.price || 0),
+                    total: item.nominal - priceAfterDiscount,
                   }
-                : item
-            )
+                : item,
+            ),
           );
         } else {
           setCarts(carts.filter((item) => +item.menu_id !== menu.id));
@@ -129,10 +131,10 @@ export default function AddOrderItem({
               ? {
                   ...item,
                   quantity: item.quantity + 1,
-                  total: item.total + (menu.price || 0),
+                  total: item.nominal + priceAfterDiscount,
                 }
-              : item
-          )
+              : item,
+          ),
         );
       }
     } else {
@@ -141,7 +143,7 @@ export default function AddOrderItem({
         {
           menu_id: String(menu.id),
           quantity: 1,
-          total: Number(menu.price),
+          nominal: priceAfterDiscount,
           notes: "",
           menu,
         },

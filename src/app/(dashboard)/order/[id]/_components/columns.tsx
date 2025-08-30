@@ -22,7 +22,7 @@ import { updateStatusOrderitem } from "../../lib/actions";
 function RowActions({ row }: { row: Row<OrderMenuTypes> }) {
   const [updateStatusOrderState, updateStatusOrderAction] = useActionState(
     updateStatusOrderitem,
-    INITIAL_STATE_ACTION
+    INITIAL_STATE_ACTION,
   );
 
   useEffect(() => {
@@ -94,7 +94,7 @@ function RowActions({ row }: { row: Row<OrderMenuTypes> }) {
 const multiColumnFilterFn: FilterFn<OrderMenuTypes> = (
   row,
   columnId,
-  filterValue
+  filterValue,
 ) => {
   const searchableRowContent =
     `${row.original.order_id} ${row.original.menu_id}`.toLowerCase();
@@ -162,11 +162,10 @@ const columns: ColumnDef<OrderMenuTypes>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Total" />
     ),
-    accessorKey: "menus.price",
+    accessorKey: "nominal",
     cell: ({ row }) => {
-      const menu = row.original.menus as MenuTypes;
-      const price = (menu.price || 0) * (row.original.quantity || 1);
-      return <p>{convertIDR(price)}</p>;
+      const nominal = row.original.nominal;
+      return <p>{convertIDR(nominal || 0)}</p>;
     },
     size: 100,
   },
@@ -184,12 +183,12 @@ const columns: ColumnDef<OrderMenuTypes>[] = [
             status === "process"
               ? "info"
               : status === "served"
-              ? "success"
-              : status === "ready"
-              ? "default"
-              : status === "canceled"
-              ? "destructive"
-              : "warning"
+                ? "success"
+                : status === "ready"
+                  ? "default"
+                  : status === "canceled"
+                    ? "destructive"
+                    : "warning"
           }
         >
           {status}

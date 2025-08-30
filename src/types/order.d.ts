@@ -19,6 +19,7 @@ export type OrderMenuTypes = {
   menu_id?: number;
   status?: string;
   quantity?: number;
+  nominal?: number;
   notes?: string;
   menus?: MenuTypes | unknown;
   created_at?: Date;
@@ -28,7 +29,7 @@ export type OrderMenuTypes = {
 export type CartTypes = {
   menu_id: string;
   quantity: number;
-  total: number;
+  nominal: number;
   notes: string;
   menu: MenuTypes;
   order_id?: string;
