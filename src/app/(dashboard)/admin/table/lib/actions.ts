@@ -7,7 +7,7 @@ import z from "zod";
 
 export async function createTable(
   prevState: TableFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const validatedFields = tableSchema.safeParse({
     name: formData.get("name"),
@@ -28,6 +28,8 @@ export async function createTable(
     description: validatedFields.data.description,
     capacity: validatedFields.data.capacity,
     status: validatedFields.data.status,
+    position_x: 0,
+    position_y: 0,
   });
 
   if (error) {
@@ -47,7 +49,7 @@ export async function createTable(
 
 export async function updateTable(
   prevState: TableFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const validatedFields = tableSchema.safeParse({
     name: formData.get("name"),
@@ -90,7 +92,7 @@ export async function updateTable(
 
 export async function deleteTable(
   prevState: TableFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const supabase = await createClient();
 

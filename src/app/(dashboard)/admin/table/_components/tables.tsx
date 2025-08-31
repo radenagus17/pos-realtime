@@ -16,6 +16,11 @@ import { selectedTableAtom } from "@/stores/table-store";
 import DialogUpdateTable from "./dialog-update-table";
 import DialogDeleteTable from "./dialog-delete-table";
 import { useTables } from "@/hooks/use-tables";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { parseAsString, useQueryState } from "nuqs";
+import TableMap from "./table-map";
+import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 interface TableManagementProps {
   query: GetQueryParams;
@@ -24,8 +29,27 @@ interface TableManagementProps {
 const TableManagement = ({ query }: TableManagementProps) => {
   const [selectedMenu, setSelectedMenu] = useAtom(selectedTableAtom);
   const [openDialog, setOpenDialog] = useAtom(dialogFormAtom);
+  const [tableTabs, setTableTabs] = useQueryState(
+    "tabs",
+    parseAsString
+      .withOptions({
+        history: "replace",
+        scroll: false,
+        shallow: true,
+        throttleMs: 50,
+      })
+      .withDefault("list"),
+  );
+
+  const supabase = createClient();
 
   const { data: tables, isLoading, refetch } = useTables(query);
+
+  const {
+    data: allTables,
+    isPending,
+    refetch: refetchAllTable,
+  } = useTables(null, "all-tables");
 
   const filterFields: DataTableFilterField<TableTypes>[] = [
     {
@@ -66,39 +90,71 @@ const TableManagement = ({ query }: TableManagementProps) => {
     clearOnDefault: true,
   });
 
+  useEffect(() => {
+    const channel = supabase
+      .channel("change-table")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tables",
+        },
+        () => {
+          refetch();
+          refetchAllTable();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  });
+
   return (
-    <main className="w-full p-4">
-      <h1 className="font-bold text-2xl">Table Management</h1>
-      <section className="mt-7 w-full">
-        <DataTable table={table} isLoading={isLoading} totalField={6}>
-          <DataTableAction
-            table={table}
-            filterFields={filterFields}
-            renderNewAction={() => (
-              <Button
-                onClick={() => {
-                  setSelectedMenu(null);
-                  return setOpenDialog(true);
-                }}
-              >
-                Create
-              </Button>
-            )}
-          />
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            {selectedMenu && selectedMenu.type === "update" ? (
-              <DialogUpdateTable refetch={refetch} />
-            ) : selectedMenu && selectedMenu.type === "delete" ? (
-              <DialogDeleteTable refetch={refetch} />
-            ) : (
-              <DialogCreateTable
-                refetch={refetch}
-                closeDialog={() => setOpenDialog(false)}
+    <main className="p-4">
+      <Tabs defaultValue={tableTabs} onValueChange={(e) => setTableTabs(e)}>
+        <div className="flex flex-col lg:flex-row mb-4 gap-2 justify-between w-full">
+          <h1 className="font-bold text-2xl">Table Management</h1>
+          <TabsList>
+            <TabsTrigger value="list">Table List</TabsTrigger>
+            <TabsTrigger value="map">Table Map</TabsTrigger>
+          </TabsList>
+        </div>
+        <TabsContent value="list">
+          <article>
+            <DataTable table={table} isLoading={isLoading} totalField={6}>
+              <DataTableAction
+                table={table}
+                filterFields={filterFields}
+                renderNewAction={() => (
+                  <Button
+                    onClick={() => {
+                      setSelectedMenu(null);
+                      return setOpenDialog(true);
+                    }}
+                  >
+                    Create
+                  </Button>
+                )}
               />
-            )}
-          </Dialog>
-        </DataTable>
-      </section>
+              <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                {selectedMenu && selectedMenu.type === "update" ? (
+                  <DialogUpdateTable />
+                ) : selectedMenu && selectedMenu.type === "delete" ? (
+                  <DialogDeleteTable />
+                ) : (
+                  <DialogCreateTable closeDialog={() => setOpenDialog(false)} />
+                )}
+              </Dialog>
+            </DataTable>
+          </article>
+        </TabsContent>
+        <TabsContent value="map">
+          {!isPending && <TableMap tables={allTables?.data || []} />}
+        </TabsContent>
+      </Tabs>
     </main>
   );
 };

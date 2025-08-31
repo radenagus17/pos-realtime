@@ -11,10 +11,10 @@ type ResultTypes = {
   count: number | null;
 };
 
-export function useTables(query?: GetQueryParams) {
+export function useTables(query?: GetQueryParams | null, queryKey?: string) {
   const supabase = createClient();
   const tables = useQuery<ResultTypes>({
-    queryKey: ["tables", query],
+    queryKey: [queryKey ?? "tables", query],
     queryFn: async () => {
       const res = supabase
         .from("tables")
@@ -25,7 +25,7 @@ export function useTables(query?: GetQueryParams) {
       if (query?.page && query?.size)
         res.range(
           (query?.page - 1) * query?.size,
-          query?.page * query?.size - 1
+          query?.page * query?.size - 1,
         );
 
       if (query?.name || query?.status)

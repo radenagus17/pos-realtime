@@ -10,10 +10,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { STATUS_ORDER_LIST } from "@/constants/order-constant";
+import { selectedTableAtom } from "@/stores/table-store";
 import { TableTypes } from "@/types/table";
+import { useAtomValue } from "jotai";
 import { Loader2 } from "lucide-react";
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 export default function FormOrder<T extends FieldValues>({
@@ -29,6 +33,13 @@ export default function FormOrder<T extends FieldValues>({
   tables?: TableTypes[] | [];
   type: "Create" | "Update" | "Takeaway";
 }) {
+  const selectedTable = useAtomValue(selectedTableAtom);
+
+  useEffect(() => {
+    if (selectedTable) {
+      form.setValue("table_id" as Path<T>, String(selectedTable.id) as any);
+    }
+  }, [selectedTable, form]);
   return (
     <DialogContent className="sm:max-w-[425px]">
       <Form {...form}>
@@ -49,7 +60,12 @@ export default function FormOrder<T extends FieldValues>({
             label="Customer Name"
             placeholder="Insert customer name here"
           />
-          {tables.length > 0 && (
+          {selectedTable && type !== "Takeaway" ? (
+            <div className="space-y-2">
+              <Label>Table</Label>
+              <Input name="table_id" value={selectedTable.name} disabled />
+            </div>
+          ) : !selectedTable && type !== "Takeaway" ? (
             <FormSelect
               form={form}
               name={"table_id" as Path<T>}
@@ -60,7 +76,7 @@ export default function FormOrder<T extends FieldValues>({
                 disabled: table.status !== "available",
               }))}
             />
-          )}
+          ) : undefined}
           {type === "Create" && (
             <FormSelect
               form={form}

@@ -7,11 +7,7 @@ import { dialogFormAtom } from "@/stores/general-store";
 import { selectedTableAtom } from "@/stores/table-store";
 import { deleteTable } from "../lib/actions";
 
-export default function DialogDeleteTable({
-  refetch,
-}: {
-  refetch: () => void;
-}) {
+export default function DialogDeleteTable() {
   const [currentData, setCurrentData] = useAtom(selectedTableAtom);
   const openDialog = useSetAtom(dialogFormAtom);
 
@@ -22,7 +18,7 @@ export default function DialogDeleteTable({
     const formData = new FormData();
     formData.append(
       "id",
-      currentData ? (currentData.id?.toString() as string) : ""
+      currentData ? (currentData.id?.toString() as string) : "",
     );
     startTransition(() => {
       deleteTableAction(formData);
@@ -40,9 +36,8 @@ export default function DialogDeleteTable({
       toast.success("Delete Table Success");
       openDialog(false);
       setCurrentData(null);
-      refetch();
     }
-  }, [deleteTableState, refetch, openDialog, setCurrentData]);
+  }, [deleteTableState?.status]);
 
   return (
     <DialogDelete

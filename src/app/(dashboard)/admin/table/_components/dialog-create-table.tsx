@@ -11,10 +11,8 @@ import { INITIAL_STATE_TABLE, INITIAL_TABLE } from "@/constants/table-constant";
 import FormTable from "./form-table";
 
 export default function DialogCreateTable({
-  refetch,
   closeDialog,
 }: {
-  refetch: () => void;
   closeDialog: () => void;
 }) {
   const form = useForm<TableFormSchema>({
@@ -47,7 +45,6 @@ export default function DialogCreateTable({
       });
       form.reset();
       closeDialog();
-      refetch();
     }
   }, [createTableState?.status]);
 

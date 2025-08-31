@@ -31,6 +31,8 @@ import { Package, Utensils } from "lucide-react";
 import DialogCreateOrderTakeaway from "./dialog-create-order-takeaway";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TableMap from "./table-map";
+import { parseAsString, useQueryState } from "nuqs";
+import { useTables } from "@/hooks/use-tables";
 
 interface OrderManagementProps {
   query: GetQueryParams;
@@ -55,6 +57,17 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
   const [selectedOrder, setSelectedOrder] = useState<SelectedOrder>(
     SelectedOrder.empty,
   );
+  const [orderTabs, setOrderTabs] = useQueryState(
+    "tabs",
+    parseAsString
+      .withOptions({
+        history: "replace",
+        scroll: false,
+        shallow: true,
+        throttleMs: 50,
+      })
+      .withDefault("list"),
+  );
 
   const {
     data: orders,
@@ -74,6 +87,30 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
     },
   });
 
+  const { data: activeOrders, refetch: refetchActiveOrders } = useQuery({
+    queryKey: ["active-orders"],
+    queryFn: async () => {
+      const query = supabase
+        .from("orders")
+        .select(
+          `id, order_id, customer_name, status, payment_token, tables (name, id)`,
+        )
+        .in("status", ["process", "reserved"])
+        .order("created_at");
+
+      const result = await query;
+
+      if (result.error)
+        toast.error("Get Order data failed", {
+          description: result.error.message,
+        });
+
+      return result.data;
+    },
+  });
+
+  const { data: tables, refetch: refetchTable } = useTables();
+
   useEffect(() => {
     const channel = supabase
       .channel("change-order")
@@ -86,6 +123,8 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
         },
         () => {
           refetch();
+          refetchTable();
+          refetchActiveOrders();
         },
       )
       .subscribe();
@@ -93,7 +132,7 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, refetch]);
+  });
 
   const filterFields: DataTableFilterField<OrderTypes>[] = [
     {
@@ -115,7 +154,7 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
 
   return (
     <main className="p-4">
-      <Tabs defaultValue="list">
+      <Tabs defaultValue={orderTabs} onValueChange={(e) => setOrderTabs(e)}>
         <div className="flex flex-col lg:flex-row mb-4 gap-2 justify-between w-full">
           <h1 className="font-bold text-2xl">Order Management</h1>
           <TabsList>
@@ -169,13 +208,11 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
               <Dialog open={openDialog} onOpenChange={setOpenDialog}>
                 {selectedOrder === SelectedOrder.dine && (
                   <DialogCreateOrderDineIn
-                    refetch={refetch}
                     closeDialog={() => setOpenDialog(false)}
                   />
                 )}
                 {selectedOrder === SelectedOrder.take && (
                   <DialogCreateOrderTakeaway
-                    refetch={refetch}
                     closeDialog={() => setOpenDialog(false)}
                   />
                 )}
@@ -184,7 +221,10 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
           </article>
         </TabsContent>
         <TabsContent value="map">
-          <TableMap />
+          <TableMap
+            dataTables={tables?.data || []}
+            activeOrders={activeOrders || []}
+          />
         </TabsContent>
       </Tabs>
     </main>

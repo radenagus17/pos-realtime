@@ -12,18 +12,20 @@ import {
 } from "@/constants/order-constant";
 import { createOrderTakeaway } from "../lib/actions";
 import FormOrder from "./form-order";
+import { useSetAtom } from "jotai";
+import { selectedTableAtom } from "@/stores/table-store";
 
 export default function DialogCreateOrderTakeaway({
-  refetch,
   closeDialog,
 }: {
-  refetch: () => void;
   closeDialog: () => void;
 }) {
   const form = useForm<OrderTakeawaySchema>({
     resolver: zodResolver(orderTakeawayFormSchema),
     defaultValues: INITIAL_ORDER_TAKEAWAY,
   });
+
+  const selectedTable = useSetAtom(selectedTableAtom);
 
   const [createOrderState, createOrderAction, isPendingCreateOrder] =
     useActionState(createOrderTakeaway, INITIAL_STATE_ORDER_TAKEAWAY);
@@ -50,7 +52,7 @@ export default function DialogCreateOrderTakeaway({
       });
       form.reset();
       closeDialog();
-      refetch();
+      selectedTable(null);
     }
   }, [createOrderState?.status]);
 

@@ -64,9 +64,8 @@ function RowActions({ row }: { row: Row<OrderTypes> }) {
 
     if (reservedState?.status === "success") {
       toast.success("Update Reservation Success");
-      queryClient.invalidateQueries({ queryKey: ["tables"] });
     }
-  }, [reservedState?.status, queryClient]);
+  }, [reservedState?.status]);
 
   return (
     <DropdownMenu>
