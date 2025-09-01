@@ -5,7 +5,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { useTables } from "@/hooks/use-tables";
 import { cn } from "@/lib/utils";
 import { Background, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";

@@ -116,7 +116,7 @@ export default function AddOrderItem({
                 ? {
                     ...item,
                     quantity: item.quantity - 1,
-                    total: item.nominal - priceAfterDiscount,
+                    nominal: item.nominal - priceAfterDiscount,
                   }
                 : item,
             ),
@@ -131,7 +131,7 @@ export default function AddOrderItem({
               ? {
                   ...item,
                   quantity: item.quantity + 1,
-                  total: item.nominal + priceAfterDiscount,
+                  nominal: item.nominal + priceAfterDiscount,
                 }
               : item,
           ),
