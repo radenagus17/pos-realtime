@@ -15,8 +15,10 @@ import { selectedTableAtom } from "@/stores/table-store";
 
 export default function DialogCreateOrderDineIn({
   closeDialog,
+  refetch,
 }: {
   closeDialog: () => void;
+  refetch: () => void;
 }) {
   const selectedTable = useSetAtom(selectedTableAtom);
 
@@ -53,6 +55,7 @@ export default function DialogCreateOrderDineIn({
       form.reset();
       closeDialog();
       selectedTable(null);
+      refetch();
     }
   }, [createOrderState?.status]);
 

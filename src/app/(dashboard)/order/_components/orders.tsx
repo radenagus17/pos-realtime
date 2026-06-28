@@ -209,11 +209,13 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
                 {selectedOrder === SelectedOrder.dine && (
                   <DialogCreateOrderDineIn
                     closeDialog={() => setOpenDialog(false)}
+                    refetch={refetch}
                   />
                 )}
                 {selectedOrder === SelectedOrder.take && (
                   <DialogCreateOrderTakeaway
                     closeDialog={() => setOpenDialog(false)}
+                    refetch={refetch}
                   />
                 )}
               </Dialog>
@@ -224,6 +226,7 @@ const OrderManagement = ({ query }: OrderManagementProps) => {
           <TableMap
             dataTables={tables?.data || []}
             activeOrders={activeOrders || []}
+            refetch={refetch}
           />
         </TabsContent>
       </Tabs>

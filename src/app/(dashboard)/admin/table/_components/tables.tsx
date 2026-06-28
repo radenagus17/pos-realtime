@@ -141,9 +141,9 @@ const TableManagement = ({ query }: TableManagementProps) => {
 							/>
 							<Dialog open={openDialog} onOpenChange={setOpenDialog}>
 								{selectedMenu && selectedMenu.type === "update" ? (
-									<DialogUpdateTable />
+									<DialogUpdateTable refetch={refetch} />
 								) : selectedMenu && selectedMenu.type === "delete" ? (
-									<DialogDeleteTable />
+									<DialogDeleteTable refetch={refetch} />
 								) : (
 									<DialogCreateTable
 										refetch={refetch}

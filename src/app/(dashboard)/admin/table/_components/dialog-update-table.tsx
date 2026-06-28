@@ -13,7 +13,7 @@ import {
   TableFormSchema,
 } from "@/validations/table-validation";
 
-export default function DialogUpdateTable() {
+export default function DialogUpdateTable({ refetch }: { refetch: () => void }) {
   const [currentData, setCurrentData] = useAtom(selectedTableAtom);
   const openDialog = useSetAtom(dialogFormAtom);
 
@@ -51,6 +51,7 @@ export default function DialogUpdateTable() {
       form.reset();
       openDialog(false);
       setCurrentData(null);
+      refetch();
     }
   }, [updateTableState?.status]);
 

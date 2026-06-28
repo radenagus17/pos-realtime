@@ -49,6 +49,7 @@ export function TableNode({
       status: string;
       table_id?: string;
     }) => void;
+    refetch: () => void;
   };
 }) {
   const [openCreateOrder, setOpenCreateOrder] = useState(false);
@@ -152,6 +153,7 @@ export function TableNode({
                   </DialogTrigger>
                   <DialogCreateOrderDineIn
                     closeDialog={() => setOpenCreateOrder(false)}
+                    refetch={data.refetch}
                   />
                 </Dialog>
               )}
@@ -166,9 +168,11 @@ export function TableNode({
 export default function TableMap({
   activeOrders,
   dataTables,
+  refetch,
 }: {
   activeOrders: OrderTypes[];
   dataTables: TableTypes[];
+  refetch: () => void;
 }) {
   const nodeTypes = {
     tableNode: TableNode,
@@ -213,10 +217,11 @@ export default function TableMap({
           if (tables) return tables.id === table.id;
         }),
         handleReservation,
+        refetch,
       },
       type: "tableNode",
     }));
-  }, [dataTables, activeOrders]);
+  }, [dataTables, activeOrders, refetch]);
 
   useEffect(() => {
     if (reservedState?.status === "error") {

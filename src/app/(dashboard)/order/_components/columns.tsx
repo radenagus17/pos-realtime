@@ -20,15 +20,12 @@ import { startTransition, useActionState, useEffect } from "react";
 import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
 import { updateReservation } from "../lib/actions";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useAtomValue } from "jotai";
 import { profileAtom } from "@/stores/auth-store";
 
 function RowActions({ row }: { row: Row<OrderTypes> }) {
   const profile = useAtomValue(profileAtom);
-
-  const queryClient = useQueryClient();
 
   const [reservedState, reservedAction] = useActionState(
     updateReservation,

@@ -17,8 +17,10 @@ import { selectedTableAtom } from "@/stores/table-store";
 
 export default function DialogCreateOrderTakeaway({
   closeDialog,
+  refetch,
 }: {
   closeDialog: () => void;
+  refetch: () => void;
 }) {
   const form = useForm<OrderTakeawaySchema>({
     resolver: zodResolver(orderTakeawayFormSchema),
@@ -53,6 +55,7 @@ export default function DialogCreateOrderTakeaway({
       form.reset();
       closeDialog();
       selectedTable(null);
+      refetch();
     }
   }, [createOrderState?.status]);
 

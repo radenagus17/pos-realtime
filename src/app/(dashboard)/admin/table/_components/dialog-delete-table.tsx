@@ -7,7 +7,7 @@ import { dialogFormAtom } from "@/stores/general-store";
 import { selectedTableAtom } from "@/stores/table-store";
 import { deleteTable } from "../lib/actions";
 
-export default function DialogDeleteTable() {
+export default function DialogDeleteTable({ refetch }: { refetch: () => void }) {
   const [currentData, setCurrentData] = useAtom(selectedTableAtom);
   const openDialog = useSetAtom(dialogFormAtom);
 
@@ -36,6 +36,7 @@ export default function DialogDeleteTable() {
       toast.success("Delete Table Success");
       openDialog(false);
       setCurrentData(null);
+      refetch();
     }
   }, [deleteTableState?.status]);
 
