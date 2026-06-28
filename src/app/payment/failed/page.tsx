@@ -1,10 +1,10 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Failed from "./_components/failed";
 
 export const metadata: Metadata = {
-  title: "Payment Failed | POS Realtime",
+	title: "Payment Failed | Qassa",
 };
 
 export default function FailedPage() {
-  return <Failed />;
+	return <Failed />;
 }

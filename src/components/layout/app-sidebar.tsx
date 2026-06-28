@@ -111,9 +111,11 @@ export function AppSidebar() {
 								</div>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate text-teal-600 font-semibold">
-										POS Realtime
+										Qassa
 									</span>
-									<span className="truncate text-xs">Admin</span>
+									<span className="truncate text-xs lowercase">
+										{profile.role}
+									</span>
 								</div>
 							</Link>
 						</SidebarMenuButton>

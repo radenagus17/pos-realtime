@@ -1,10 +1,10 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Dashboard from "./_components/dashboard";
 
 export const metadata: Metadata = {
-  title: "Dashboard - POS Realtime",
+	title: "Dashboard - Qassa",
 };
 
 export default function AdminDashboardPage() {
-  return <Dashboard />;
+	return <Dashboard />;
 }

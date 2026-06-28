@@ -1,19 +1,19 @@
-import { Metadata } from "next";
-import UsersManagement from "./_components/users";
-import { SearchParams } from "nuqs";
+import type { Metadata } from "next";
+import type { SearchParams } from "nuqs";
 import { queryParamsSchema } from "@/lib/utils";
+import UsersManagement from "./_components/users";
 
 export const metadata: Metadata = {
-  title: "User - POS Realtime",
+	title: "User - Qassa",
 };
 
 interface UserPageProps {
-  searchParams: Promise<SearchParams>;
+	searchParams: Promise<SearchParams>;
 }
 
 export default async function UserPage({ searchParams }: UserPageProps) {
-  const resolvedQueryParams = await searchParams;
-  const query = await queryParamsSchema.parseAsync(resolvedQueryParams);
+	const resolvedQueryParams = await searchParams;
+	const query = await queryParamsSchema.parseAsync(resolvedQueryParams);
 
-  return <UsersManagement query={query} />;
+	return <UsersManagement query={query} />;
 }
